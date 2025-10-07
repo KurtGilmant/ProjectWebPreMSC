@@ -11,5 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "mysql2": "^3.9.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.14"
   }
 }
