@@ -1,0 +1,42 @@
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Logs ---
+*.log
+logs/
+*.pid
+
+# --- Environnement (ne jamais commit un .env) ---
+.env
+.env.*
+
+# --- Docker ---
+# Empêche de commit les volumes ou caches locaux
+docker-compose.override.yml
+**/docker-volume/
+**/tmp/
+**/data/
+*.tar
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- IDE / éditeurs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Build / dist / cache ---
+dist/
+build/
+.cache/
+coverage/
+
+# --- MySQL dumps (optionnel) ---
+*.sql
+*.sql.gz
