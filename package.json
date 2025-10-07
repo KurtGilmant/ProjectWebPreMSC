@@ -1,7 +1,7 @@
 {
   "name": "mon-app-docker",
   "version": "1.0.0",
-  "description": "Une application Node.js connectée à MySQL via Docker",
+  "description": "Une application Node.js + Express + MySQL via Docker",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"
@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mysql2": "^3.9.2"
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "mysql2": "^3.15.1"
   }
 }
