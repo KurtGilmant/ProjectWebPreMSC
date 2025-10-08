@@ -77,3 +77,71 @@ h1 {
 .learn-more:hover {
     background: #fe8c00;
 }
+
+/* Section détails de l'offre */
+.job-details {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.job-details.hidden {
+    display: none;
+}
+
+.back-btn {
+    background: #6b7280;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+}
+
+.back-btn:hover {
+    background: #4b5563;
+}
+
+.job-detail-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.job-detail-content h2 {
+    color: #feae00;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.company {
+    color: #fe8c00;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.description {
+    color: #374151;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.job-info h3 {
+    color: #374151;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+}
+
+.job-info p {
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.jobs-grid.hidden {
+    display: none;
+}
