@@ -1,5 +1,5 @@
 {
-  "name": "mon-app-docker",
+  "name": "@kurtgilmant/mon-app-docker",
   "version": "1.0.0",
   "description": "Une application Node.js connectée à MySQL via Docker",
   "main": "src/index.js",
