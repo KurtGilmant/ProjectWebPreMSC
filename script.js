@@ -71,16 +71,38 @@ function showJobsList() {
     document.querySelector('.jobs-grid').classList.remove('hidden');
 }
 
+// Génération dynamique des cartes d'offres
+function generateJobCards() {
+    const jobsGrid = document.querySelector('.jobs-grid');
+    
+    jobs.forEach(job => {
+        const jobCard = document.createElement('div');
+        jobCard.className = 'job-card';
+        jobCard.innerHTML = `
+            <h2 class="job-title">${job.title}</h2>
+            <p class="job-company">${job.company}</p>
+            <p class="job-description">${job.description}</p>
+            <button class="learn-more" data-job-id="${job.id}">En savoir plus</button>
+        `;
+        jobsGrid.appendChild(jobCard);
+    });
+}
+
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Jobly loaded successfully!');
+    // Générer les cartes d'offres
+    generateJobCards();
     
-    // Ajouter les event listeners aux boutons Learn more
-    const buttons = document.querySelectorAll('.learn-more');
-    buttons.forEach((button, index) => {
-        button.addEventListener('click', () => showJobDetails(jobs[index].id));
+    // Event listeners pour les boutons "En savoir plus"
+    document.querySelector('.jobs-grid').addEventListener('click', function(e) {
+        if (e.target.classList.contains('learn-more')) {
+            const jobId = parseInt(e.target.getAttribute('data-job-id'));
+            showJobDetails(jobId);
+        }
     });
     
-    // Ajouter event listener au bouton retour
+    // Event listener pour le bouton retour
     document.getElementById('back-btn').addEventListener('click', showJobsList);
+    
+    console.log('Jobly loaded successfully!');
 });
