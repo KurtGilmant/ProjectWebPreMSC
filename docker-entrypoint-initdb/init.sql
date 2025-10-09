@@ -63,7 +63,7 @@ CREATE TABLE Application (
     status VARCHAR(50) DEFAULT 'not reviewed',
 
     FOREIGN KEY (offer_id) REFERENCES Offer(offer_id),
-    FOREIGN KEY (user_id) REFERENCES User(user_id)
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 -- User skills (many-to-many)
@@ -72,7 +72,7 @@ CREATE TABLE User_Skills (
     user_id INT NOT NULL,
     skill_id INT NOT NULL,
 
-    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (skill_id) REFERENCES Skills(skill_id)
 );
 
