@@ -127,5 +127,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener pour le bouton retour
     document.getElementById('back-btn').addEventListener('click', showJobsList);
     
+    // Event listener pour le bouton Postuler
+    document.getElementById('apply-btn').addEventListener('click', function() {
+        const jobTitle = document.getElementById('detail-title').textContent;
+        document.getElementById('form-job-title').textContent = jobTitle;
+        document.getElementById('job-details').classList.add('hidden');
+        document.getElementById('application-form').classList.remove('hidden');
+    });
+    
+    // Event listener pour retour aux détails depuis le formulaire
+    document.getElementById('back-to-details').addEventListener('click', function() {
+        document.getElementById('application-form').classList.add('hidden');
+        document.getElementById('job-details').classList.remove('hidden');
+    });
+    
+    // Event listener pour le formulaire de candidature
+    document.getElementById('candidature-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Pour l'instant, ne fait rien comme demandé
+        console.log('Candidature envoyée (pas d\'effet pour l\'instant)');
+    });
+    
     console.log('Jobly loaded successfully!');
 });

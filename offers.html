@@ -32,6 +32,34 @@
                     <p id="detail-location"></p>
                     <p id="detail-salary"></p>
                 </div>
+                <button id="apply-btn" class="apply-btn">Postuler</button>
+            </div>
+        </div>
+        
+        <!-- Formulaire de candidature (caché par défaut) -->
+        <div id="application-form" class="application-form hidden">
+            <button id="back-to-details" class="back-btn">← Retour aux détails</button>
+            <div class="form-content">
+                <h2>Postuler pour <span id="form-job-title"></span></h2>
+                <form id="candidature-form">
+                    <div class="form-group">
+                        <label for="nom">Nom *</label>
+                        <input type="text" id="nom" name="nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prenom">Prénom *</label>
+                        <input type="text" id="prenom" name="prenom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telephone">Téléphone *</label>
+                        <input type="tel" id="telephone" name="telephone" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Envoyer</button>
+                </form>
             </div>
         </div>
     </div>
