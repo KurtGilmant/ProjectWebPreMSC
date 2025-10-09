@@ -69,7 +69,6 @@ setupSwagger(app);
  *                   created_at:
  *                     type: string
  */
-
 app.get('/User', (req, res) => {
   connection.query('SELECT * FROM User', (err, results) => {
     if (err) {
@@ -79,11 +78,9 @@ app.get('/User', (req, res) => {
     res.json(results);
   });
 });
-
-
 /**
  * @swagger
- * /User/{id}:
+ * /User/{user_id}:
  *   get:
  *     summary: GET all infos of one user by is id
  *     tags:
@@ -115,7 +112,6 @@ app.get('/User', (req, res) => {
  *                 created_at:
  *                   type: string
  */
-
 app.get('/User/:user_id', (req, res) => {
   const userId = req.params.user_id;
   connection.query('SELECT * FROM User WHERE user_id = ?', userId, (err, rows) => {
@@ -123,8 +119,6 @@ app.get('/User/:user_id', (req, res) => {
     res.json(rows[0]);
   });
 });
-
-
 /**
  * @swagger
  * /User:
@@ -172,7 +166,6 @@ app.get('/User/:user_id', (req, res) => {
  *       400:
  *         description: invalid data
  */
-
 app.post('/User', (req, res) => {
     const {email, password, full_name, role, resume} = req.body;
     connection.query('INSERT INTO User (email, password, full_name, role, resume) VALUES (?, ?, ?, ?, ?)', [email, password, full_name, role, resume], (err, result) => {
@@ -180,8 +173,6 @@ app.post('/User', (req, res) => {
       res.send('User added successfully');
     });
   });
-
-
 /**
  * @swagger
  * /User/{user_id}:
@@ -238,7 +229,6 @@ app.post('/User', (req, res) => {
  *       404:
  *         description: user not found
  */
-
 app.put('/User/:user_id', (req, res) => {
   const user_id = req.params.user_id;
   const {email, password, full_name, role, resume} = req.body;
@@ -247,8 +237,6 @@ app.put('/User/:user_id', (req, res) => {
     res.send('User updated successfully');
   });
 });
-
-
 /**
  * @swagger
  * /User/{user_id}:
@@ -274,7 +262,6 @@ app.put('/User/:user_id', (req, res) => {
  *       404:
  *         description: user not found
  */
-
 app.delete('/User/:user_id', (req, res) => {
   const user_id = req.params.user_id;
   connection.query('DELETE FROM User WHERE user_id = ?', user_id, (err, result) => {
@@ -287,14 +274,14 @@ app.delete('/User/:user_id', (req, res) => {
 // --- Job_Category CRUD ---
 /**
  * @swagger
- * /User:
+ * /Job_Category:
  *   get:
- *     summary: GET all infos of all users
+ *     summary: GET all infos of all job category
  *     tags:
- *       - User
+ *       - Job_Category
  *     responses:
  *       200:
- *         description: Return all infos of all users
+ *         description: Return job category
  *         content:
  *           application/json:
  *             schema:
@@ -302,17 +289,9 @@ app.delete('/User/:user_id', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
- *                   user_id:
+ *                   job_category_id:
  *                     type: integer
- *                   email:
- *                     type: string
- *                   password:
- *                     type: string
- *                   full_name:
- *                     type: string
- *                   role:
- *                     type: string
- *                   created_at:
+ *                   name:
  *                     type: string
  */
 app.get('/Job_Category', (req, res) => {
@@ -323,11 +302,11 @@ app.get('/Job_Category', (req, res) => {
 });
 /**
  * @swagger
- * /User:
+ * /Job_Category:
  *   post:
- *     summary: Create new user
+ *     summary: Create new job category
  *     tags:
- *       - User
+ *       - Job_Category
  *     requestBody:
  *       required: true
  *       content:
@@ -335,36 +314,19 @@ app.get('/Job_Category', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - name
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: mySecret123
- *               full_name:
- *                 type: string
- *                 example: John Doe
- *               role:
- *                 type: string
- *                 example: employeur
- *               resume:
- *                 type: string
- *                 example: I am a software developer...
+ *                 example: jongling
  *     responses:
  *       200:
- *         description: User post with success
+ *         description: Job category added successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User added successfully
+ *               example: Job category added successfully
  *       400:
  *         description: invalid data
  */
@@ -377,11 +339,11 @@ app.post('/Job_Category', (req, res) => {
 });
 /**
  * @swagger
- * /User/{id}:
+ * /Job_Category/{job_category_id}:
  *   get:
- *     summary: GET all infos of one user by is id
+ *     summary: GET all infos of one job category by is id
  *     tags:
- *       - User
+ *       - Job_Category
  *     parameters:
  *       - in: path
  *         name: id
@@ -390,26 +352,18 @@ app.post('/Job_Category', (req, res) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User found and return all infos
+ *         description: Job category found and return all infos
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 user_id:
+ *                 job_category_id:
  *                   type: integer
- *                 email:
- *                   type: string
- *                 password:
- *                   type: string
- *                 full_name:
- *                   type: string
- *                 role:
- *                   type: string
- *                 created_at:
+ *                 name:
  *                   type: string
  */
-app.get('/Job_Category/:id', (req, res) => {
+app.get('/Job_Category/:job_category_id', (req, res) => {
   connection.query('SELECT * FROM Job_Category WHERE job_category_id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
@@ -417,18 +371,18 @@ app.get('/Job_Category/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Job_Category/{job_category_id}:
  *   put:
- *     summary: Change User info by his id
+ *     summary: Change job category info by his id
  *     tags:
- *       - User
+ *       - Job_Category
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id 
+ *         description: job category's id 
  *     requestBody:
  *       required: true
  *       content:
@@ -436,42 +390,25 @@ app.get('/Job_Category/:id', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - name
  *             properties:
- *               email:
+ *               name:
  *                 type: string
- *                 format: email
- *                 example: updated@example.com
- *               password:
- *                 type: string
- *                 example: newSecret123
- *               full_name:
- *                 type: string
- *                 example: Jane Doe
- *               role:
- *                 type: string
- *                 example: admin
- *               resume:
- *                 type: string
- *                 example: Experienced backend developer
+ *                 example: Mythology
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: job category updated successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User updated successfully
+ *               example: job category updated successfully
  *       400:
  *         description: invalid data
  *       404:
- *         description: user not found
+ *         description: job category not found
  */
-app.put('/Job_Category/:id', (req, res) => {
+app.put('/Job_Category/:job_category_id', (req, res) => {
   connection.query('UPDATE Job_Category SET name = ? WHERE job_category_id = ?', [req.body.name, req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Category updated');
@@ -479,30 +416,30 @@ app.put('/Job_Category/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Job_Category/{job_category_id}:
  *   delete:
- *     summary: Supprimer un utilisateur par son ID
+ *     summary: Delete a job category by its ID
  *     tags:
- *       - User
+ *       - Job_Category
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id
+ *         description: job category's id
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: job category deleted successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User deleted successfully
+ *               example: job category deleted successfully
  *       404:
- *         description: user not found
+ *         description: job category not found
  */
-app.delete('/Job_Category/:id', (req, res) => {
+app.delete('/Job_Category/:job_category_id', (req, res) => {
   connection.query('DELETE FROM Job_Category WHERE job_category_id = ?', [req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Category deleted');
@@ -513,14 +450,14 @@ app.delete('/Job_Category/:id', (req, res) => {
 // --- Skills CRUD ---
 /**
  * @swagger
- * /User:
+ * /Skills:
  *   get:
- *     summary: GET all infos of all users
+ *     summary: GET all infos of all skills
  *     tags:
- *       - User
+ *       - Skills
  *     responses:
  *       200:
- *         description: Return all infos of all users
+ *         description: Return all infos of all skills
  *         content:
  *           application/json:
  *             schema:
@@ -528,17 +465,9 @@ app.delete('/Job_Category/:id', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
- *                   user_id:
+ *                   skill_id:
  *                     type: integer
- *                   email:
- *                     type: string
- *                   password:
- *                     type: string
- *                   full_name:
- *                     type: string
- *                   role:
- *                     type: string
- *                   created_at:
+ *                   name:
  *                     type: string
  */
 app.get('/Skills', (req, res) => {
@@ -549,11 +478,11 @@ app.get('/Skills', (req, res) => {
 });
 /**
  * @swagger
- * /User:
+ * /Skills:
  *   post:
- *     summary: Create new user
+ *     summary: Create new skill
  *     tags:
- *       - User
+ *       - Skills
  *     requestBody:
  *       required: true
  *       content:
@@ -561,36 +490,19 @@ app.get('/Skills', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - name
  *             properties:
- *               email:
+ *               name:
  *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: mySecret123
- *               full_name:
- *                 type: string
- *                 example: John Doe
- *               role:
- *                 type: string
- *                 example: employeur
- *               resume:
- *                 type: string
- *                 example: I am a software developer...
+ *                 example: Dance
  *     responses:
  *       200:
- *         description: User post with success
+ *         description: Skill added successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User added successfully
+ *               example: Skill added successfully
  *       400:
  *         description: invalid data
  */
@@ -603,11 +515,11 @@ app.post('/Skills', (req, res) => {
 });
 /**
  * @swagger
- * /User/{id}:
+ * /Skills/{skill_id}:
  *   get:
- *     summary: GET all infos of one user by is id
+ *     summary: GET all infos of one skill by is id
  *     tags:
- *       - User
+ *       - Skills
  *     parameters:
  *       - in: path
  *         name: id
@@ -616,26 +528,18 @@ app.post('/Skills', (req, res) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User found and return all infos
+ *         description: Skill found and return all infos
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 user_id:
+ *                 skill_id:
  *                   type: integer
- *                 email:
- *                   type: string
- *                 password:
- *                   type: string
- *                 full_name:
- *                   type: string
- *                 role:
- *                   type: string
- *                 created_at:
+ *                 name:
  *                   type: string
  */
-app.get('/Skills/:id', (req, res) => {
+app.get('/Skills/:skill_id', (req, res) => {
   connection.query('SELECT * FROM Skills WHERE skill_id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
@@ -643,18 +547,18 @@ app.get('/Skills/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Skills/{skill_id}:
  *   put:
- *     summary: Change User info by his id
+ *     summary: Change skill info by his id
  *     tags:
- *       - User
+ *       - Skills
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: skill_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id 
+ *         description: Skills's id 
  *     requestBody:
  *       required: true
  *       content:
@@ -662,42 +566,24 @@ app.get('/Skills/:id', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - name
  *             properties:
- *               email:
+ *               name:
  *                 type: string
- *                 format: email
- *                 example: updated@example.com
- *               password:
- *                 type: string
- *                 example: newSecret123
- *               full_name:
- *                 type: string
- *                 example: Jane Doe
- *               role:
- *                 type: string
- *                 example: admin
- *               resume:
- *                 type: string
- *                 example: Experienced backend developer
- *     responses:
+ *                 example: Lucky
  *       200:
- *         description: User updated successfully
+ *         description: Skill updated successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User updated successfully
+ *               example: Skill updated successfully
  *       400:
  *         description: invalid data
  *       404:
- *         description: user not found
+ *         description: Skill not found
  */
-app.put('/Skills/:id', (req, res) => {
+app.put('/Skills/:skill_id', (req, res) => {
   connection.query('UPDATE Skills SET name = ? WHERE skill_id = ?', [req.body.name, req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Skill updated');
@@ -705,30 +591,30 @@ app.put('/Skills/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Skills/{skill_id}:
  *   delete:
- *     summary: Supprimer un utilisateur par son ID
+ *     summary: Delete a skill by its ID
  *     tags:
- *       - User
+ *       - Skills
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: skill_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id
+ *         description: Skill's id
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: Skill deleted successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User deleted successfully
+ *               example: Skill deleted successfully
  *       404:
- *         description: user not found
+ *         description: Skill not found
  */
-app.delete('/Skills/:id', (req, res) => {
+app.delete('/Skills/:skill_id', (req, res) => {
   connection.query('DELETE FROM Skills WHERE skill_id = ?', [req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Skill deleted');
@@ -739,14 +625,14 @@ app.delete('/Skills/:id', (req, res) => {
 // --- Company CRUD ---
 /**
  * @swagger
- * /User:
+ * /Company:
  *   get:
- *     summary: GET all infos of all users
+ *     summary: GET all infos of all companies
  *     tags:
- *       - User
+ *       - Company
  *     responses:
  *       200:
- *         description: Return all infos of all users
+ *         description: Return all infos of all companies
  *         content:
  *           application/json:
  *             schema:
@@ -754,17 +640,15 @@ app.delete('/Skills/:id', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
- *                   user_id:
+ *                   company_id:
  *                     type: integer
- *                   email:
+ *                   name:
  *                     type: string
- *                   password:
+ *                   website:
  *                     type: string
- *                   full_name:
+ *                   location:
  *                     type: string
- *                   role:
- *                     type: string
- *                   created_at:
+ *                   description:
  *                     type: string
  */
 app.get('/Company', (req, res) => {
@@ -775,11 +659,11 @@ app.get('/Company', (req, res) => {
 });
 /**
  * @swagger
- * /User:
+ * /Company:
  *   post:
- *     summary: Create new user
+ *     summary: Create new company
  *     tags:
- *       - User
+ *       - Company
  *     requestBody:
  *       required: true
  *       content:
@@ -787,36 +671,31 @@ app.get('/Company', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - name
+ *               - website
+ *               - location
+ *               - description
  *             properties:
- *               email:
+ *               name:
  *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
+ *                 example: Sephora
+ *               website:
  *                 type: string
- *                 example: mySecret123
- *               full_name:
+ *                 example: sephora.com
+ *               location:
  *                 type: string
- *                 example: John Doe
- *               role:
+ *                 example: Bordeaux
+ *               description:
  *                 type: string
- *                 example: employeur
- *               resume:
- *                 type: string
- *                 example: I am a software developer...
+ *                 example: On est gentil
  *     responses:
  *       200:
- *         description: User post with success
+ *         description: Company added successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User added successfully
+ *               example: Company added successfully
  *       400:
  *         description: invalid data
  */
@@ -829,11 +708,11 @@ app.post('/Company', (req, res) => {
 });
 /**
  * @swagger
- * /User/{id}:
+ * /Company/{company_id}:
  *   get:
- *     summary: GET all infos of one user by is id
+ *     summary: GET all infos of one company by is id
  *     tags:
- *       - User
+ *       - Company
  *     parameters:
  *       - in: path
  *         name: id
@@ -842,26 +721,24 @@ app.post('/Company', (req, res) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User found and return all infos
+ *         description: Company found and return all infos
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 user_id:
+ *                 company_id:
  *                   type: integer
- *                 email:
+ *                 name:
  *                   type: string
- *                 password:
+ *                 website:
  *                   type: string
- *                 full_name:
+ *                 location:
  *                   type: string
- *                 role:
- *                   type: string
- *                 created_at:
+ *                 description:
  *                   type: string
  */
-app.get('/Company/:id', (req, res) => {
+app.get('/Company/:company_id', (req, res) => {
   connection.query('SELECT * FROM Company WHERE company_id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
@@ -869,18 +746,18 @@ app.get('/Company/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Company/{company_id}:
  *   put:
- *     summary: Change User info by his id
+ *     summary: Change company info by his id
  *     tags:
- *       - User
+ *       - Company
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: company_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id 
+ *         description: Company's id 
  *     requestBody:
  *       required: true
  *       content:
@@ -888,42 +765,37 @@ app.get('/Company/:id', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - name
+ *               - website
+ *               - location
+ *               - description
  *             properties:
- *               email:
+ *               name:
  *                 type: string
- *                 format: email
- *                 example: updated@example.com
- *               password:
+ *                 example: Castorama
+ *               website:
  *                 type: string
- *                 example: newSecret123
- *               full_name:
+ *                 example: castorama.com
+ *               location:
  *                 type: string
- *                 example: Jane Doe
- *               role:
+ *                 example: Marseille
+ *               description:
  *                 type: string
- *                 example: admin
- *               resume:
- *                 type: string
- *                 example: Experienced backend developer
+ *                 example: On adore les chats
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: Company updated successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User updated successfully
+ *               example: Company updated successfully
  *       400:
  *         description: invalid data
  *       404:
- *         description: user not found
+ *         description: Company not found
  */
-app.put('/Company/:id', (req, res) => {
+app.put('/Company/:company_id', (req, res) => {
   const { name, website, location, description } = req.body;
   connection.query('UPDATE Company SET name = ?, website = ?, location = ?, description = ? WHERE company_id = ?', [name, website, location, description, req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
@@ -932,30 +804,30 @@ app.put('/Company/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Company/{company_id}:
  *   delete:
- *     summary: Supprimer un utilisateur par son ID
+ *     summary: Delete a company by its ID
  *     tags:
- *       - User
+ *       - Company
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: company_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id
+ *         description: Company's id
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: Company deleted successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User deleted successfully
+ *               example: Company deleted successfully
  *       404:
- *         description: user not found
+ *         description: Company not found
  */
-app.delete('/Company/:id', (req, res) => {
+app.delete('/Company/:company_id', (req, res) => {
   connection.query('DELETE FROM Company WHERE company_id = ?', [req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Company deleted');
@@ -966,14 +838,14 @@ app.delete('/Company/:id', (req, res) => {
 // --- Offer CRUD ---
 /**
  * @swagger
- * /User:
+ * /Offer:
  *   get:
- *     summary: GET all infos of all users
+ *     summary: GET all infos of all offers
  *     tags:
- *       - User
+ *       - Offer
  *     responses:
  *       200:
- *         description: Return all infos of all users
+ *         description: Return all infos of all offers
  *         content:
  *           application/json:
  *             schema:
@@ -981,17 +853,29 @@ app.delete('/Company/:id', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
- *                   user_id:
+ *                   offer_id:
  *                     type: integer
- *                   email:
+ *                   title:
  *                     type: string
- *                   password:
+ *                   description:
  *                     type: string
- *                   full_name:
+ *                   company_id:
+ *                     type: integer
+ *                   location:
  *                     type: string
- *                   role:
+ *                   contract_type:
  *                     type: string
- *                   created_at:
+ *                   salary:
+ *                     type: integer
+ *                   category_id:
+ *                     type: integer
+ *                   status:
+ *                     type: string
+ *                   rythm:
+ *                     type: string
+ *                   remote:
+ *                     type: boolean
+ *                   language:
  *                     type: string
  */
 app.get('/Offer', (req, res) => {
@@ -1002,11 +886,11 @@ app.get('/Offer', (req, res) => {
 });
 /**
  * @swagger
- * /User:
+ * /Offer:
  *   post:
- *     summary: Create new user
+ *     summary: Create new offer
  *     tags:
- *       - User
+ *       - Offer
  *     requestBody:
  *       required: true
  *       content:
@@ -1014,36 +898,59 @@ app.get('/Offer', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - title
+ *               - description
+ *               - company_id
+ *               - location
+ *               - contract_type
+ *               - salary
+ *               - category_id
+ *               - status
+ *               - rythm
+ *               - remote
+ *               - language
  *             properties:
- *               email:
+ *               title:
  *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
+ *                 example: Data Analyst
+ *               description:
  *                 type: string
- *                 example: mySecret123
- *               full_name:
+ *                 example: On cherche un data analyst...
+ *               company_id:
+ *                 type: integer
+ *                 example: 23
+ *               location:
  *                 type: string
- *                 example: John Doe
- *               role:
+ *                 example: Agen
+ *               contract_type:
  *                 type: string
- *                 example: employeur
- *               resume:
+ *                 example: CDI
+ *               salary:
+ *                 type: integer
+ *                 example: 35000
+ *               category_id:
+ *                 type: integer
+ *                 example: 5
+ *               status:
  *                 type: string
- *                 example: I am a software developer...
+ *                 example: open
+ *               rythm:
+ *                 type: string
+ *                 example: full-time
+ *               remote:
+ *                 type: boolean
+ *                 example: true
+ *               language:
+ *                 type: string
+ *                 example: French
  *     responses:
  *       200:
- *         description: User post with success
+ *         description: Offer post with success
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User added successfully
+ *               example: Offer added successfully
  *       400:
  *         description: invalid data
  */
@@ -1060,11 +967,11 @@ app.post('/Offer', (req, res) => {
 });
 /**
  * @swagger
- * /User/{id}:
+ * /Offer/{offer_id}:
  *   get:
- *     summary: GET all infos of one user by is id
+ *     summary: GET all infos of one offer by is id
  *     tags:
- *       - User
+ *       - Offer
  *     parameters:
  *       - in: path
  *         name: id
@@ -1073,26 +980,38 @@ app.post('/Offer', (req, res) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User found and return all infos
+ *         description: Offer found and return all infos
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 user_id:
+ *                 offer_id:
  *                   type: integer
- *                 email:
+ *                 title:
  *                   type: string
- *                 password:
+ *                 description:
  *                   type: string
- *                 full_name:
+ *                 company_id:
+ *                   type: integer
+ *                 location:
  *                   type: string
- *                 role:
+ *                 contract_type:
  *                   type: string
- *                 created_at:
+ *                 salary:
+ *                   type: integer
+ *                 category_id:
+ *                   type: integer
+ *                 status:
+ *                   type: string
+ *                 rythm:
+ *                   type: string
+ *                 remote:
+ *                   type: boolean
+ *                 language:
  *                   type: string
  */
-app.get('/Offer/:id', (req, res) => {
+app.get('/Offer/:offer_id', (req, res) => {
   connection.query('SELECT * FROM Offer WHERE offer_id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
@@ -1100,18 +1019,18 @@ app.get('/Offer/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Offer/{offer_id}:
  *   put:
- *     summary: Change User info by his id
+ *     summary: Change Offer info by his id
  *     tags:
- *       - User
+ *       - Offer
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: offer_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id 
+ *         description: Offer's id 
  *     requestBody:
  *       required: true
  *       content:
@@ -1119,42 +1038,65 @@ app.get('/Offer/:id', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - title
+ *               - description
+ *               - company_id
+ *               - location
+ *               - contract_type
+ *               - salary
+ *               - category_id
+ *               - status
+ *               - rythm
+ *               - remote
+ *               - language
  *             properties:
- *               email:
+ *               title:
  *                 type: string
- *                 format: email
- *                 example: updated@example.com
- *               password:
+ *                 example: Data Analyst
+ *               description:
  *                 type: string
- *                 example: newSecret123
- *               full_name:
+ *                 example: On cherche un data analyst...
+ *               company_id:
+ *                 type: integer
+ *                 example: 23
+ *               location:
  *                 type: string
- *                 example: Jane Doe
- *               role:
+ *                 example: Agen
+ *               contract_type:
  *                 type: string
- *                 example: admin
- *               resume:
+ *                 example: CDI
+ *               salary:
+ *                 type: integer
+ *                 example: 35000
+ *               category_id:
+ *                 type: integer
+ *                 example: 5
+ *               status:
  *                 type: string
- *                 example: Experienced backend developer
+ *                 example: open
+ *               rythm:
+ *                 type: string
+ *                 example: full-time
+ *               remote:
+ *                 type: boolean
+ *                 example: true
+ *               language:
+ *                 type: string
+ *                 example: French
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: Offer updated successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User updated successfully
+ *               example: Offer updated successfully
  *       400:
  *         description: invalid data
  *       404:
- *         description: user not found
+ *         description: offer not found
  */
-app.put('/Offer/:id', (req, res) => {
+app.put('/Offer/:offer_id', (req, res) => {
   const { title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language } = req.body;
   connection.query('UPDATE Offer SET title = ?, description = ?, company_id = ?, location = ?, contract_type = ?, salary = ?, category_id = ?, status = ?, rythm = ?, remote = ?, language = ? WHERE offer_id = ?', [title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language, req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
@@ -1163,30 +1105,30 @@ app.put('/Offer/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Offer/{offer_id}:
  *   delete:
- *     summary: Supprimer un utilisateur par son ID
+ *     summary: Delete a offer by its ID
  *     tags:
- *       - User
+ *       - Offer
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: offer_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id
+ *         description: Offer's id
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: Offer deleted successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User deleted successfully
+ *               example: Offer deleted successfully
  *       404:
- *         description: user not found
+ *         description: offer not found
  */
-app.delete('/Offer/:id', (req, res) => {
+app.delete('/Offer/:offer_id', (req, res) => {
   connection.query('DELETE FROM Offer WHERE offer_id = ?', [req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Offer deleted');
@@ -1197,14 +1139,14 @@ app.delete('/Offer/:id', (req, res) => {
 // --- Application CRUD ---
 /**
  * @swagger
- * /User:
+ * /Application:
  *   get:
- *     summary: GET all infos of all users
+ *     summary: GET all infos of all applications
  *     tags:
- *       - User
+ *       - Application
  *     responses:
  *       200:
- *         description: Return all infos of all users
+ *         description: Return all infos of all applications
  *         content:
  *           application/json:
  *             schema:
@@ -1212,17 +1154,21 @@ app.delete('/Offer/:id', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
+ *                   application_id:
+ *                     type: integer
+ *                   offer_id:
+ *                     type: integer
  *                   user_id:
  *                     type: integer
- *                   email:
+ *                   applicant_name:
  *                     type: string
- *                   password:
+ *                   applicant_email:
  *                     type: string
- *                   full_name:
+ *                   resume:
  *                     type: string
- *                   role:
+ *                   message:
  *                     type: string
- *                   created_at:
+ *                   status:
  *                     type: string
  */
 app.get('/Application', (req, res) => {
@@ -1233,11 +1179,11 @@ app.get('/Application', (req, res) => {
 });
 /**
  * @swagger
- * /User:
+ * /Application:
  *   post:
- *     summary: Create new user
+ *     summary: Create new application
  *     tags:
- *       - User
+ *       - Application
  *     requestBody:
  *       required: true
  *       content:
@@ -1245,36 +1191,44 @@ app.get('/Application', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
+ *               - offer_id
+ *               - user_id
+ *               - applicant_name
+ *               - applicant_email
  *               - resume
+ *               - message
+ *               - status
  *             properties:
- *               email:
+ *               offer_id:
+ *                 type: integer
+ *                 example: 12
+ *               user_id:
+ *                 type: integer
+ *                 example: 34
+ *               applicant_name:
+ *                 type: string
+ *                 example: Loulou
+ *               applicant_email:
  *                 type: string
  *                 format: email
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: mySecret123
- *               full_name:
- *                 type: string
- *                 example: John Doe
- *               role:
- *                 type: string
- *                 example: employeur
+ *                 example: loulou@example.com
  *               resume:
  *                 type: string
- *                 example: I am a software developer...
+ *                 example: I give my everything to this job...
+ *               message:
+ *                 type: string
+ *                 example: I am very interested in this position...
+ *               status:
+ *                 type: string
+ *                 example: open
  *     responses:
  *       200:
- *         description: User post with success
+ *         description: Application added successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User added successfully
+ *               example: Application added successfully
  *       400:
  *         description: invalid data
  */
@@ -1287,11 +1241,11 @@ app.post('/Application', (req, res) => {
 });
 /**
  * @swagger
- * /User/{id}:
+ * /Application/{application_id}:
  *   get:
- *     summary: GET all infos of one user by is id
+ *     summary: GET all infos of one application by is id
  *     tags:
- *       - User
+ *       - Application
  *     parameters:
  *       - in: path
  *         name: id
@@ -1300,26 +1254,30 @@ app.post('/Application', (req, res) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User found and return all infos
+ *         description: Application found and return all infos
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 application_id:
+ *                   type: integer
+ *                 offer_id:
+ *                   type: integer
  *                 user_id:
  *                   type: integer
- *                 email:
+ *                 applicant_name:
  *                   type: string
- *                 password:
+ *                 applicant_email:
  *                   type: string
- *                 full_name:
+ *                 resume:
  *                   type: string
- *                 role:
+ *                 message:
  *                   type: string
- *                 created_at:
+ *                 status:
  *                   type: string
  */
-app.get('/Application/:id', (req, res) => {
+app.get('/Application/:application_id', (req, res) => {
   connection.query('SELECT * FROM Application WHERE application_id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
@@ -1327,18 +1285,18 @@ app.get('/Application/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Application/{application_id}:
  *   put:
- *     summary: Change User info by his id
+ *     summary: Change Application info by his id
  *     tags:
- *       - User
+ *       - Application
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: application_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id 
+ *         description: Application's id 
  *     requestBody:
  *       required: true
  *       content:
@@ -1346,42 +1304,50 @@ app.get('/Application/:id', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
+ *               - offer_id
+ *               - user_id
+ *               - applicant_name
+ *               - applicant_email
  *               - resume
+ *               - message
+ *               - status
  *             properties:
- *               email:
+ *               offer_id:
+ *                 type: integer
+ *                 example: 12
+ *               user_id:
+ *                 type: integer
+ *                 example: 34
+ *               applicant_name:
+ *                 type: string
+ *                 example: Loulou
+ *               applicant_email:
  *                 type: string
  *                 format: email
- *                 example: updated@example.com
- *               password:
- *                 type: string
- *                 example: newSecret123
- *               full_name:
- *                 type: string
- *                 example: Jane Doe
- *               role:
- *                 type: string
- *                 example: admin
+ *                 example: loulou@example.com
  *               resume:
  *                 type: string
- *                 example: Experienced backend developer
+ *                 example: I give my everything to this job...
+ *               message:
+ *                 type: string
+ *                 example: I am very interested in this position...
+ *               status:
+ *                 type: string
+ *                 example: open
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: Application updated successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User updated successfully
+ *               example: Application updated successfully
  *       400:
  *         description: invalid data
  *       404:
- *         description: user not found
+ *         description: application not found
  */
-app.put('/Application/:id', (req, res) => {
+app.put('/Application/:application_id', (req, res) => {
   const { offer_id, user_id, applicant_name, applicant_email, resume, message, status } = req.body;
   connection.query('UPDATE Application SET offer_id = ?, user_id = ?, applicant_name = ?, applicant_email = ?, resume = ?, message = ?, status = ? WHERE application_id = ?', [offer_id, user_id, applicant_name, applicant_email, resume, message, status, req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
@@ -1390,30 +1356,30 @@ app.put('/Application/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Application/{application_id}:
  *   delete:
- *     summary: Supprimer un utilisateur par son ID
+ *     summary: Delete an application by its ID
  *     tags:
- *       - User
+ *       - Application
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: application_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id
+ *         description: Application's id
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: Application deleted successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User deleted successfully
+ *               example: Application deleted successfully
  *       404:
- *         description: user not found
+ *         description: application not found
  */
-app.delete('/Application/:id', (req, res) => {
+app.delete('/Application/:application_id', (req, res) => {
   connection.query('DELETE FROM Application WHERE application_id = ?', [req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Application deleted');
@@ -1424,14 +1390,14 @@ app.delete('/Application/:id', (req, res) => {
 // --- User_Skills CRUD ---
 /**
  * @swagger
- * /User:
+ * /User_Skills:
  *   get:
- *     summary: GET all infos of all users
+ *     summary: GET all infos of all user skills
  *     tags:
- *       - User
+ *       - User_Skills
  *     responses:
  *       200:
- *         description: Return all infos of all users
+ *         description: Return all infos of all user skills
  *         content:
  *           application/json:
  *             schema:
@@ -1439,18 +1405,12 @@ app.delete('/Application/:id', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
+ *                   user_skill_id:
+ *                     type: integer
  *                   user_id:
  *                     type: integer
- *                   email:
- *                     type: string
- *                   password:
- *                     type: string
- *                   full_name:
- *                     type: string
- *                   role:
- *                     type: string
- *                   created_at:
- *                     type: string
+ *                   skill_id:
+ *                     type: integer
  */
 app.get('/User_Skills', (req, res) => {
   connection.query('SELECT * FROM User_Skills', (err, results) => {
@@ -1460,11 +1420,11 @@ app.get('/User_Skills', (req, res) => {
 });
 /**
  * @swagger
- * /User:
+ * /User_Skills:
  *   post:
- *     summary: Create new user
+ *     summary: Create new user skill
  *     tags:
- *       - User
+ *       - User_Skills
  *     requestBody:
  *       required: true
  *       content:
@@ -1472,36 +1432,23 @@ app.get('/User_Skills', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - user_id
+ *               - skill_id
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: mySecret123
- *               full_name:
- *                 type: string
- *                 example: John Doe
- *               role:
- *                 type: string
- *                 example: employeur
- *               resume:
- *                 type: string
- *                 example: I am a software developer...
+ *               user_id:
+ *                 type: integer
+ *                 example: 26
+ *               skill_id:
+ *                 type: integer
+ *                 example: 90
  *     responses:
  *       200:
- *         description: User post with success
+ *         description: User_Skills post with success
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User added successfully
+ *               example: User_Skills added successfully
  *       400:
  *         description: invalid data
  */
@@ -1514,11 +1461,11 @@ app.post('/User_Skills', (req, res) => {
 });
 /**
  * @swagger
- * /User/{id}:
+ * /User_Skills/{user_skill_id}:
  *   get:
- *     summary: GET all infos of one user by is id
+ *     summary: GET all infos of one user's skill by is id
  *     tags:
- *       - User
+ *       - User_Skills
  *     parameters:
  *       - in: path
  *         name: id
@@ -1527,26 +1474,20 @@ app.post('/User_Skills', (req, res) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User found and return all infos
+ *         description: User_Skills found and return all infos
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 user_skill_id:
+ *                   type: integer
  *                 user_id:
  *                   type: integer
- *                 email:
- *                   type: string
- *                 password:
- *                   type: string
- *                 full_name:
- *                   type: string
- *                 role:
- *                   type: string
- *                 created_at:
- *                   type: string
+ *                 skill_id:
+ *                   type: integer
  */
-app.get('/User_Skills/:id', (req, res) => {
+app.get('/User_Skills/:user_skill_id', (req, res) => {
   connection.query('SELECT * FROM User_Skills WHERE user_skill_id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
@@ -1554,18 +1495,18 @@ app.get('/User_Skills/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /User_Skills/{user_skill_id}:
  *   put:
- *     summary: Change User info by his id
+ *     summary: Change User_Skills info by his id
  *     tags:
- *       - User
+ *       - User_Skills
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: user_skill_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id 
+ *         description: User_Skills's id 
  *     requestBody:
  *       required: true
  *       content:
@@ -1573,42 +1514,29 @@ app.get('/User_Skills/:id', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - user_id
+ *               - skill_id
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: updated@example.com
- *               password:
- *                 type: string
- *                 example: newSecret123
- *               full_name:
- *                 type: string
- *                 example: Jane Doe
- *               role:
- *                 type: string
- *                 example: admin
- *               resume:
- *                 type: string
- *                 example: Experienced backend developer
+ *               user_id:
+ *                 type: integer
+ *                 example: 54
+ *               skill_id:
+ *                 type: integer
+ *                 example: 123
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: User_Skills updated successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User updated successfully
+ *               example: User_Skills updated successfully
  *       400:
  *         description: invalid data
  *       404:
- *         description: user not found
+ *         description: user's skill not found
  */
-app.put('/User_Skills/:id', (req, res) => {
+app.put('/User_Skills/:user_skill_id', (req, res) => {
   const { user_id, skill_id } = req.body;
   connection.query('UPDATE User_Skills SET user_id = ?, skill_id = ? WHERE user_skill_id = ?', [user_id, skill_id, req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
@@ -1617,30 +1545,30 @@ app.put('/User_Skills/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /User_Skills/{user_skill_id}:
  *   delete:
- *     summary: Supprimer un utilisateur par son ID
+ *     summary: Delete a user's skill by its ID
  *     tags:
- *       - User
+ *       - User_Skills
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: user_skill_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id
+ *         description: User_Skills' id
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: User_Skills deleted successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User deleted successfully
+ *               example: User_Skills deleted successfully
  *       404:
- *         description: user not found
+ *         description: user's skills not found
  */
-app.delete('/User_Skills/:id', (req, res) => {
+app.delete('/User_Skills/:user_skill_id', (req, res) => {
   connection.query('DELETE FROM User_Skills WHERE user_skill_id = ?', [req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('User skill deleted');
@@ -1651,14 +1579,14 @@ app.delete('/User_Skills/:id', (req, res) => {
 // --- Sought_Skills CRUD ---
 /**
  * @swagger
- * /User:
+ * /Sought_Skills:
  *   get:
- *     summary: GET all infos of all users
+ *     summary: GET all infos of all Sought_Skills
  *     tags:
- *       - User
+ *       - Sought_Skills
  *     responses:
  *       200:
- *         description: Return all infos of all users
+ *         description: Return all infos of all Sought_Skills
  *         content:
  *           application/json:
  *             schema:
@@ -1666,18 +1594,12 @@ app.delete('/User_Skills/:id', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
- *                   user_id:
+ *                   sought_skill_id:
  *                     type: integer
- *                   email:
- *                     type: string
- *                   password:
- *                     type: string
- *                   full_name:
- *                     type: string
- *                   role:
- *                     type: string
- *                   created_at:
- *                     type: string
+ *                   offer_id:
+ *                     type: integer
+ *                   skill_id:
+ *                     type: integer
  */
 app.get('/Sought_Skills', (req, res) => {
   connection.query('SELECT * FROM Sought_Skills', (err, results) => {
@@ -1687,11 +1609,11 @@ app.get('/Sought_Skills', (req, res) => {
 });
 /**
  * @swagger
- * /User:
+ * /Sought_Skills:
  *   post:
- *     summary: Create new user
+ *     summary: Create new Sought_Skills
  *     tags:
- *       - User
+ *       - Sought_Skills
  *     requestBody:
  *       required: true
  *       content:
@@ -1699,36 +1621,23 @@ app.get('/Sought_Skills', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - offer_id
+ *               - skill_id
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: mySecret123
- *               full_name:
- *                 type: string
- *                 example: John Doe
- *               role:
- *                 type: string
- *                 example: employeur
- *               resume:
- *                 type: string
- *                 example: I am a software developer...
+ *               offer_id:
+ *                 type: integer
+ *                 example: 76
+ *               skill_id:
+ *                 type: integer
+ *                 example: 72
  *     responses:
  *       200:
- *         description: User post with success
+ *         description: Sought_Skills added successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User added successfully
+ *               example: Sought_Skills added successfully
  *       400:
  *         description: invalid data
  */
@@ -1741,11 +1650,11 @@ app.post('/Sought_Skills', (req, res) => {
 });
 /**
  * @swagger
- * /User/{id}:
+ * /Sought_Skills/{sought_skill_id}:
  *   get:
- *     summary: GET all infos of one user by is id
+ *     summary: GET all infos of one Sought_Skills by is id
  *     tags:
- *       - User
+ *       - Sought_Skills
  *     parameters:
  *       - in: path
  *         name: id
@@ -1754,24 +1663,18 @@ app.post('/Sought_Skills', (req, res) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User found and return all infos
+ *         description: Sought_Skills found and return all infos
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 user_id:
+ *                 sought_skill_id:
  *                   type: integer
- *                 email:
- *                   type: string
- *                 password:
- *                   type: string
- *                 full_name:
- *                   type: string
- *                 role:
- *                   type: string
- *                 created_at:
- *                   type: string
+ *                 offer_id:
+ *                   type: integer
+ *                 skill_id:
+ *                   type: integer
  */
 app.get('/Sought_Skills/:id', (req, res) => {
   connection.query('SELECT * FROM Sought_Skills WHERE sought_skill_id = ?', [req.params.id], (err, results) => {
@@ -1781,18 +1684,18 @@ app.get('/Sought_Skills/:id', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /Sought_Skills/{sought_skill_id}:
  *   put:
- *     summary: Change User info by his id
+ *     summary: Change Sought_Skills info by his id
  *     tags:
- *       - User
+ *       - Sought_Skills
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: sought_skill_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id 
+ *         description: Sought_Skills's id 
  *     requestBody:
  *       required: true
  *       content:
@@ -1800,40 +1703,27 @@ app.get('/Sought_Skills/:id', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - password
- *               - full_name
- *               - role
- *               - resume
+ *               - offer_id
+ *               - skill_id
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: updated@example.com
+ *               offer_id:
+ *                 type: integer
+ *                 example: 892
  *               password:
- *                 type: string
- *                 example: newSecret123
- *               full_name:
- *                 type: string
- *                 example: Jane Doe
- *               role:
- *                 type: string
- *                 example: admin
- *               resume:
- *                 type: string
- *                 example: Experienced backend developer
+ *                 type: integer
+ *                 example: 185
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: Sought_Skills updated successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User updated successfully
+ *               example: Sought_Skills updated successfully
  *       400:
  *         description: invalid data
  *       404:
- *         description: user not found
+ *         description: Sought_Skills not found
  */
 app.put('/Sought_Skills/:id', (req, res) => {
   const { offer_id, skill_id } = req.body;
@@ -1841,30 +1731,31 @@ app.put('/Sought_Skills/:id', (req, res) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Sought skill updated');
   });
-});/**
+});
+/**
  * @swagger
- * /User/{user_id}:
+ * /Sought_Skills/{sought_skill_id}:
  *   delete:
- *     summary: Supprimer un utilisateur par son ID
+ *     summary: Delete a Sought_Skills by its ID
  *     tags:
- *       - User
+ *       - Sought_Skills
  *     parameters:
  *       - in: path
- *         name: user_id
+ *         name: sought_skill_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User's id
+ *         description: Sought_Skills's id
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: Sought_Skills deleted successfully
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: User deleted successfully
+ *               example: Sought_Skills deleted successfully
  *       404:
- *         description: user not found
+ *         description: Sought_Skills not found
  */
 app.delete('/Sought_Skills/:id', (req, res) => {
   connection.query('DELETE FROM Sought_Skills WHERE sought_skill_id = ?', [req.params.id], (err, result) => {
