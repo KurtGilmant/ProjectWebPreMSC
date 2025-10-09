@@ -72,10 +72,16 @@ function showJobsList() {
 }
 
 // Génération dynamique des cartes d'offres
-function generateJobCards() {
+function generateJobCards(jobsToShow = jobs) {
     const jobsGrid = document.querySelector('.jobs-grid');
+    jobsGrid.innerHTML = ''; // Vider la grille
     
-    jobs.forEach(job => {
+    if (jobsToShow.length === 0) {
+        jobsGrid.innerHTML = '<p style="text-align: center; color: #828282; grid-column: 1 / -1;">Aucune offre trouvée pour votre recherche.</p>';
+        return;
+    }
+    
+    jobsToShow.forEach(job => {
         const jobCard = document.createElement('div');
         jobCard.className = 'job-card';
         jobCard.innerHTML = `
@@ -88,10 +94,27 @@ function generateJobCards() {
     });
 }
 
+// Fonction pour filtrer les offres selon le terme de recherche
+function filterJobs(searchTerm) {
+    if (!searchTerm) return jobs;
+    
+    return jobs.filter(job => 
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        job.company.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+}
+
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
-    // Générer les cartes d'offres
-    generateJobCards();
+    // Récupérer le terme de recherche depuis l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchTerm = urlParams.get('search');
+    
+    // Filtrer les offres si un terme de recherche est présent
+    const filteredJobs = filterJobs(searchTerm);
+    
+    // Générer les cartes d'offres filtrées
+    generateJobCards(filteredJobs);
     
     // Event listeners pour les boutons "En savoir plus"
     document.querySelector('.jobs-grid').addEventListener('click', function(e) {

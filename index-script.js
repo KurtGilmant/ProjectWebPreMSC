@@ -1,4 +1,13 @@
 // Script pour les interactions de la page d'accueil
+// Données des offres d'emploi disponibles
+const jobOffers = [
+    { id: 1, title: "Développeur Frontend React", company: "Pixel Labs" },
+    { id: 2, title: "Ingénieur Données Junior", company: "DataWave" },
+    { id: 3, title: "Product Manager", company: "StartupFlow" },
+    { id: 4, title: "Designer UI/UX", company: "CreativeCore" },
+    { id: 5, title: "DevOps / Cloud", company: "Opsify" }
+];
+
 document.addEventListener('DOMContentLoaded', function() {
     // Sélectionner tous les boutons
     const buttons = document.querySelectorAll('button');
@@ -68,6 +77,35 @@ document.addEventListener('DOMContentLoaded', function() {
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
+    });
+    
+    // Fonctionnalité de recherche
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.querySelector('.button-5');
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.trim();
+        
+        if (searchTerm === '') {
+            window.location.href = 'offers.html';
+            return;
+        }
+        
+        // Passer le terme de recherche via URL
+        window.location.href = `offers.html?search=${encodeURIComponent(searchTerm)}`;
+    }
+    
+    // Event listeners pour la recherche
+    searchButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        performSearch();
+    });
+    
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        }
     });
     
     console.log('Index page interactions loaded successfully!');
