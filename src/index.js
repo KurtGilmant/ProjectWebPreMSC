@@ -80,7 +80,7 @@ app.get('/User', (req, res) => {
 });
 /**
  * @swagger
- * /User/{user_id}:
+ * /User/{id}:
  *   get:
  *     summary: GET all infos of one user by is id
  *     tags:
@@ -339,7 +339,7 @@ app.post('/Job_Category', (req, res) => {
 });
 /**
  * @swagger
- * /Job_Category/{job_category_id}:
+ * /Job_Category/{id}:
  *   get:
  *     summary: GET all infos of one job category by is id
  *     tags:
@@ -364,7 +364,7 @@ app.post('/Job_Category', (req, res) => {
  *                   type: string
  */
 app.get('/Job_Category/:job_category_id', (req, res) => {
-  connection.query('SELECT * FROM Job_Category WHERE job_category_id = ?', [req.params.id], (err, results) => {
+  connection.query('SELECT * FROM Job_Category WHERE job_category_id = ?', [req.params.job_category_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
   });
@@ -409,7 +409,7 @@ app.get('/Job_Category/:job_category_id', (req, res) => {
  *         description: job category not found
  */
 app.put('/Job_Category/:job_category_id', (req, res) => {
-  connection.query('UPDATE Job_Category SET name = ? WHERE job_category_id = ?', [req.body.name, req.params.id], (err, result) => {
+  connection.query('UPDATE Job_Category SET name = ? WHERE job_category_id = ?', [req.body.name, req.params.job_category_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Category updated');
   });
@@ -440,7 +440,7 @@ app.put('/Job_Category/:job_category_id', (req, res) => {
  *         description: job category not found
  */
 app.delete('/Job_Category/:job_category_id', (req, res) => {
-  connection.query('DELETE FROM Job_Category WHERE job_category_id = ?', [req.params.id], (err, result) => {
+  connection.query('DELETE FROM Job_Category WHERE job_category_id = ?', [req.params.job_category_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Category deleted');
   });
@@ -515,7 +515,7 @@ app.post('/Skills', (req, res) => {
 });
 /**
  * @swagger
- * /Skills/{skill_id}:
+ * /Skills/{id}:
  *   get:
  *     summary: GET all infos of one skill by is id
  *     tags:
@@ -540,7 +540,7 @@ app.post('/Skills', (req, res) => {
  *                   type: string
  */
 app.get('/Skills/:skill_id', (req, res) => {
-  connection.query('SELECT * FROM Skills WHERE skill_id = ?', [req.params.id], (err, results) => {
+  connection.query('SELECT * FROM Skills WHERE skill_id = ?', [req.params.skill_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
   });
@@ -584,7 +584,7 @@ app.get('/Skills/:skill_id', (req, res) => {
  *         description: Skill not found
  */
 app.put('/Skills/:skill_id', (req, res) => {
-  connection.query('UPDATE Skills SET name = ? WHERE skill_id = ?', [req.body.name, req.params.id], (err, result) => {
+  connection.query('UPDATE Skills SET name = ? WHERE skill_id = ?', [req.body.name, req.params.skill_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Skill updated');
   });
@@ -615,7 +615,7 @@ app.put('/Skills/:skill_id', (req, res) => {
  *         description: Skill not found
  */
 app.delete('/Skills/:skill_id', (req, res) => {
-  connection.query('DELETE FROM Skills WHERE skill_id = ?', [req.params.id], (err, result) => {
+  connection.query('DELETE FROM Skills WHERE skill_id = ?', [req.params.skill_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Skill deleted');
   });
@@ -708,7 +708,7 @@ app.post('/Company', (req, res) => {
 });
 /**
  * @swagger
- * /Company/{company_id}:
+ * /Company/{id}:
  *   get:
  *     summary: GET all infos of one company by is id
  *     tags:
@@ -739,7 +739,7 @@ app.post('/Company', (req, res) => {
  *                   type: string
  */
 app.get('/Company/:company_id', (req, res) => {
-  connection.query('SELECT * FROM Company WHERE company_id = ?', [req.params.id], (err, results) => {
+  connection.query('SELECT * FROM Company WHERE company_id = ?', [req.params.company_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
   });
@@ -797,7 +797,7 @@ app.get('/Company/:company_id', (req, res) => {
  */
 app.put('/Company/:company_id', (req, res) => {
   const { name, website, location, description } = req.body;
-  connection.query('UPDATE Company SET name = ?, website = ?, location = ?, description = ? WHERE company_id = ?', [name, website, location, description, req.params.id], (err, result) => {
+  connection.query('UPDATE Company SET name = ?, website = ?, location = ?, description = ? WHERE company_id = ?', [name, website, location, description, req.params.company_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Company updated');
   });
@@ -828,7 +828,7 @@ app.put('/Company/:company_id', (req, res) => {
  *         description: Company not found
  */
 app.delete('/Company/:company_id', (req, res) => {
-  connection.query('DELETE FROM Company WHERE company_id = ?', [req.params.id], (err, result) => {
+  connection.query('DELETE FROM Company WHERE company_id = ?', [req.params.company_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Company deleted');
   });
@@ -967,7 +967,7 @@ app.post('/Offer', (req, res) => {
 });
 /**
  * @swagger
- * /Offer/{offer_id}:
+ * /Offer/{id}:
  *   get:
  *     summary: GET all infos of one offer by is id
  *     tags:
@@ -1012,7 +1012,7 @@ app.post('/Offer', (req, res) => {
  *                   type: string
  */
 app.get('/Offer/:offer_id', (req, res) => {
-  connection.query('SELECT * FROM Offer WHERE offer_id = ?', [req.params.id], (err, results) => {
+  connection.query('SELECT * FROM Offer WHERE offer_id = ?', [req.params.offer_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
   });
@@ -1098,7 +1098,7 @@ app.get('/Offer/:offer_id', (req, res) => {
  */
 app.put('/Offer/:offer_id', (req, res) => {
   const { title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language } = req.body;
-  connection.query('UPDATE Offer SET title = ?, description = ?, company_id = ?, location = ?, contract_type = ?, salary = ?, category_id = ?, status = ?, rythm = ?, remote = ?, language = ? WHERE offer_id = ?', [title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language, req.params.id], (err, result) => {
+  connection.query('UPDATE Offer SET title = ?, description = ?, company_id = ?, location = ?, contract_type = ?, salary = ?, category_id = ?, status = ?, rythm = ?, remote = ?, language = ? WHERE offer_id = ?', [title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language, req.params.offer_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Offer updated');
   });
@@ -1129,7 +1129,7 @@ app.put('/Offer/:offer_id', (req, res) => {
  *         description: offer not found
  */
 app.delete('/Offer/:offer_id', (req, res) => {
-  connection.query('DELETE FROM Offer WHERE offer_id = ?', [req.params.id], (err, result) => {
+  connection.query('DELETE FROM Offer WHERE offer_id = ?', [req.params.offer_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Offer deleted');
   });
@@ -1241,7 +1241,7 @@ app.post('/Application', (req, res) => {
 });
 /**
  * @swagger
- * /Application/{application_id}:
+ * /Application/{id}:
  *   get:
  *     summary: GET all infos of one application by is id
  *     tags:
@@ -1278,7 +1278,7 @@ app.post('/Application', (req, res) => {
  *                   type: string
  */
 app.get('/Application/:application_id', (req, res) => {
-  connection.query('SELECT * FROM Application WHERE application_id = ?', [req.params.id], (err, results) => {
+  connection.query('SELECT * FROM Application WHERE application_id = ?', [req.params.application_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.json(results[0]);
   });
@@ -1349,7 +1349,7 @@ app.get('/Application/:application_id', (req, res) => {
  */
 app.put('/Application/:application_id', (req, res) => {
   const { offer_id, user_id, applicant_name, applicant_email, resume, message, status } = req.body;
-  connection.query('UPDATE Application SET offer_id = ?, user_id = ?, applicant_name = ?, applicant_email = ?, resume = ?, message = ?, status = ? WHERE application_id = ?', [offer_id, user_id, applicant_name, applicant_email, resume, message, status, req.params.id], (err, result) => {
+  connection.query('UPDATE Application SET offer_id = ?, user_id = ?, applicant_name = ?, applicant_email = ?, resume = ?, message = ?, status = ? WHERE application_id = ?', [offer_id, user_id, applicant_name, applicant_email, resume, message, status, req.params.application_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Application updated');
   });
@@ -1380,7 +1380,7 @@ app.put('/Application/:application_id', (req, res) => {
  *         description: application not found
  */
 app.delete('/Application/:application_id', (req, res) => {
-  connection.query('DELETE FROM Application WHERE application_id = ?', [req.params.id], (err, result) => {
+  connection.query('DELETE FROM Application WHERE application_id = ?', [req.params.application_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Application deleted');
   });
@@ -1461,9 +1461,9 @@ app.post('/User_Skills', (req, res) => {
 });
 /**
  * @swagger
- * /User_Skills/{user_skill_id}:
+ * /User_Skills/{id}:
  *   get:
- *     summary: GET all infos of one user's skill by is id
+ *     summary: GET all user skill infos by one user id 
  *     tags:
  *       - User_Skills
  *     parameters:
@@ -1487,10 +1487,10 @@ app.post('/User_Skills', (req, res) => {
  *                 skill_id:
  *                   type: integer
  */
-app.get('/User_Skills/:user_skill_id', (req, res) => {
-  connection.query('SELECT * FROM User_Skills WHERE user_skill_id = ?', [req.params.id], (err, results) => {
+app.get('/User_Skills/:user_id', (req, res) => {
+  connection.query('SELECT * FROM User_Skills WHERE user_id = ?', [req.params.user_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
-    res.json(results[0]);
+    res.json(results);
   });
 });
 /**
@@ -1538,7 +1538,7 @@ app.get('/User_Skills/:user_skill_id', (req, res) => {
  */
 app.put('/User_Skills/:user_skill_id', (req, res) => {
   const { user_id, skill_id } = req.body;
-  connection.query('UPDATE User_Skills SET user_id = ?, skill_id = ? WHERE user_skill_id = ?', [user_id, skill_id, req.params.id], (err, result) => {
+  connection.query('UPDATE User_Skills SET user_id = ?, skill_id = ? WHERE user_skill_id = ?', [user_id, skill_id, req.params.user_skill_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('User skill updated');
   });
@@ -1569,7 +1569,7 @@ app.put('/User_Skills/:user_skill_id', (req, res) => {
  *         description: user's skills not found
  */
 app.delete('/User_Skills/:user_skill_id', (req, res) => {
-  connection.query('DELETE FROM User_Skills WHERE user_skill_id = ?', [req.params.id], (err, result) => {
+  connection.query('DELETE FROM User_Skills WHERE user_skill_id = ?', [req.params.user_skill_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('User skill deleted');
   });
@@ -1650,9 +1650,9 @@ app.post('/Sought_Skills', (req, res) => {
 });
 /**
  * @swagger
- * /Sought_Skills/{sought_skill_id}:
+ * /Sought_Skills/{id}:
  *   get:
- *     summary: GET all infos of one Sought_Skills by is id
+ *     summary: GET all sought skill by one offer id
  *     tags:
  *       - Sought_Skills
  *     parameters:
@@ -1677,9 +1677,9 @@ app.post('/Sought_Skills', (req, res) => {
  *                   type: integer
  */
 app.get('/Sought_Skills/:id', (req, res) => {
-  connection.query('SELECT * FROM Sought_Skills WHERE sought_skill_id = ?', [req.params.id], (err, results) => {
+  connection.query('SELECT * FROM Sought_Skills WHERE offer_id = ?', [req.params.offer_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
-    res.json(results[0]);
+    res.json(results);
   });
 });
 /**
@@ -1727,7 +1727,7 @@ app.get('/Sought_Skills/:id', (req, res) => {
  */
 app.put('/Sought_Skills/:id', (req, res) => {
   const { offer_id, skill_id } = req.body;
-  connection.query('UPDATE Sought_Skills SET offer_id = ?, skill_id = ? WHERE sought_skill_id = ?', [offer_id, skill_id, req.params.id], (err, result) => {
+  connection.query('UPDATE Sought_Skills SET offer_id = ?, skill_id = ? WHERE sought_skill_id = ?', [offer_id, skill_id, req.params.sought_skill_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Sought skill updated');
   });
@@ -1758,7 +1758,7 @@ app.put('/Sought_Skills/:id', (req, res) => {
  *         description: Sought_Skills not found
  */
 app.delete('/Sought_Skills/:id', (req, res) => {
-  connection.query('DELETE FROM Sought_Skills WHERE sought_skill_id = ?', [req.params.id], (err, result) => {
+  connection.query('DELETE FROM Sought_Skills WHERE sought_skill_id = ?', [req.params.sought_skill_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
     res.send('Sought skill deleted');
   });
