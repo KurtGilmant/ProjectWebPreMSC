@@ -123,6 +123,62 @@ app.get('/User/:user_id', (req, res) => {
 
 /**
  * @swagger
+ * /User/find-user/{full_name}:
+ *   get:
+ *     summary: Get user info by full name
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: full_name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Full name of the user to retrieve
+ *     responses:
+ *       200:
+ *         description: User found and return all infos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user_id:
+ *                   type: integer
+ *                 email:
+ *                   type: string
+ *                 password:
+ *                   type: string
+ *                 full_name:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *                 created_at:
+ *                   type: string
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: User not found
+ */
+app.get('/User/find-user/:full_name', (req, res) => {
+  const userName = req.params.full_name;
+  connection.query('SELECT * FROM User WHERE full_name = ?', userName, (err, rows) => {
+    if (err) {
+      console.error('Erreur requête SQL:', err);
+      return res.status(404).json({ error: 'Erreur base de données' });
+    }
+    res.json(rows[0]);
+  });
+});
+
+/**
+ * @swagger
  * /User/check-exists/{full_name}:
  *   get:
  *     summary: Check if a user exists by full name
