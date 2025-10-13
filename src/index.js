@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 require('dotenv').config();
 const setupSwagger = require('./swagger');
 const cors = require('cors');
+const bcrypt = require("bcrypt");
 
 const app = express();
 app.use(cors());
@@ -119,6 +120,53 @@ app.get('/User/:user_id', (req, res) => {
     res.json(rows[0]);
   });
 });
+
+/**
+ * @swagger
+ * /User/check-exists/{full_name}:
+ *   get:
+ *     summary: Check if a user exists by full name
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: full_name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Full name of the user to check
+ *     responses:
+ *       200:
+ *         description: Returns whether the user exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 exists:
+ *                   type: boolean
+ *                   example: true
+ *       500:
+ *         description: Database error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Erreur base de données
+ */
+app.get('/User/check-exists/:full_name', (req, res) => {
+  const full_name = req.params.full_name;
+  connection.query('SELECT COUNT(*) AS count FROM User WHERE full_name = ?', [full_name], (err, results) => {
+    if (err) {
+      console.error('Erreur requête SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json({ exists: results[0].count > 0 });
+  });
+});
 /**
  * @swagger
  * /User:
@@ -166,12 +214,26 @@ app.get('/User/:user_id', (req, res) => {
  *       400:
  *         description: invalid data
  */
-app.post('/User', (req, res) => {
+app.post('/User', async (req, res) => {
     const {email, password, full_name, role, resume} = req.body;
-    connection.query('INSERT INTO User (email, password, full_name, role, resume) VALUES (?, ?, ?, ?, ?)', [email, password, full_name, role, resume], (err, result) => {
-      if (err) throw err;
-      res.send('User added successfully');
-    });
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      connection.query(
+        'INSERT INTO User (email, password, full_name, role, resume) VALUES (?, ?, ?, ?, ?)',
+        [email, hashedPassword, full_name, role, resume],
+        (err, result) => {
+          if (err) {
+            console.error('Erreur SQL:', err);
+            return res.status(500).json({ success: false, error: err.message });
+          }
+          console.log('User created:', result);
+          res.json({ success: true, message: 'User added successfully', userId: result.insertId });
+        }
+      );
+    } catch (err) {
+      console.error('Erreur bcrypt:', err);
+      res.status(500).json({ success: false, error: 'Error hashing password' });
+    }
   });
 /**
  * @swagger
