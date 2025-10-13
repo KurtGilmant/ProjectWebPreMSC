@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobly - Mes Candidatures</title>
+    <link rel="stylesheet" href="globals.css">
+    <link rel="stylesheet" href="styleguide.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .candidature-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .candidature-info h3 {
+            margin: 0 0 8px 0;
+        }
+        .candidature-info p {
+            margin: 4px 0;
+        }
+        .candidature-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-accepted { background-color: #d4edda; color: #155724; }
+        .status-rejected { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mes Candidatures</h1>
+            <p class="subtitle">Suivez l'état de vos candidatures</p>
+        </header>
+        
+        <div class="profile-actions">
+            <a href="index.html"><button class="back-btn">← Retour à l'accueil</button></a>
+        </div>
+        
+        <main class="profile-content">
+            <div class="profile-card">
+                <h2>Historique des candidatures</h2>
+                <div class="candidatures-list">
+                    <div class="candidature-item">
+                        <div class="candidature-info">
+                            <h3>Développeur Full Stack</h3>
+                            <p class="company">TechCorp</p>
+                            <p class="date">Candidature envoyée le 15/12/2024</p>
+                        </div>
+                        <div class="candidature-status status-pending">En attente</div>
+                    </div>
+                    
+                    <div class="candidature-item">
+                        <div class="candidature-info">
+                            <h3>Développeur Frontend</h3>
+                            <p class="company">WebAgency</p>
+                            <p class="date">Candidature envoyée le 12/12/2024</p>
+                        </div>
+                        <div class="candidature-status status-accepted">Acceptée</div>
+                    </div>
+                    
+                    <div class="candidature-item">
+                        <div class="candidature-info">
+                            <h3>Développeur Backend</h3>
+                            <p class="company">StartupTech</p>
+                            <p class="date">Candidature envoyée le 10/12/2024</p>
+                        </div>
+                        <div class="candidature-status status-rejected">Refusée</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <a href="offers.html"><button class="learn-more">Voir les offres</button></a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
