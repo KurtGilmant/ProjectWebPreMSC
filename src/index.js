@@ -120,7 +120,6 @@ app.get('/User/:user_id', (req, res) => {
     res.json(rows[0]);
   });
 });
-
 /**
  * @swagger
  * /User/find-user/{full_name}:
@@ -176,7 +175,6 @@ app.get('/User/find-user/:full_name', (req, res) => {
     res.json(rows[0]);
   });
 });
-
 /**
  * @swagger
  * /User/check-exists/{full_name}:
@@ -287,6 +285,84 @@ app.post('/User', async (req, res) => {
         }
       );
     } catch (err) {
+      console.error('Erreur bcrypt:', err);
+      res.status(500).json({ success: false, error: 'Error hashing password' });
+    }
+  });
+/**
+ * @swagger
+ * /User/login:
+ *   post:
+ *     summary: Login user with password
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *               - hashedPassword
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 example: mySecret123
+ *               hashedPassword:
+ *                 type: string
+ *                 example: $2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36rQe4gkQ6QJ8QJ8QJ8QJ8Q
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *       401:
+ *         description: Invalid password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid password
+ *       500:
+ *         description: Error hashing password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: Error hashing password
+ */
+app.post('/User/login', async (req, res) => {
+    const {password,hashedPassword} = req.body;
+    try {
+      const testPassword = await bcrypt.compare(password, hashedPassword);
+      if (testPassword) {
+        res.json({ success: true, message: 'Login successful' });
+      } else {
+        res.status(401).json({ success: false, message: 'Invalid password' });
+      }
+    }catch (err) {
       console.error('Erreur bcrypt:', err);
       res.status(500).json({ success: false, error: 'Error hashing password' });
     }
