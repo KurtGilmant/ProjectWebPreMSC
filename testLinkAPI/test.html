@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Task 04</title>
+  <script type="module" src="test.js"></script>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="exercice">
+      <header>
+          04
+      </header>
+      <section>
+        <p id="demo">
+          Make the buttons below work. The + and - buttons should increase or decrease the page's font size.
+        </p>
+        <p>
+          The dropdown menu should change the background color of the page.
+        </p>
+      </section>
+      <footer>
+        <div>
+          <script></script>
+          <button onclick="userAction()">+</button>
+          <button onclick="userAction()">-</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <form id="registerForm">
+        <div>
+            <label for="name">Name </label>
+            <input type="text" id="name" name="name" />
+        </div>
+        <div>
+            <label for="email">Email </label>
+            <input type="email" id="email" name="email"/>
+        </div>
+        <div>
+            <label for="password">Password </label>
+            <input type="password" id="password" name="password"/>
+        </div>
+        <div>
+            <label for="role">Curriculum </label>
+            <select name="role" id="role">
+                <option value=""> -- Please choose an option -- </option>
+                <option value="candidate">Candidate</option>
+                <option value="employeur">Employeur</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <div>
+            <label for="resume">Resume </label>
+            <input type="text" id="resume" name="resume" />
+        </div>
+        <div>
+            <input type="submit" name="submit" value="Send" />
+        </div>
+    </form>
+    <script src="../authentification/registerController.js"></script>
+    <form id="loginForm">
+        <div>
+            <label for="loginName">Name </label>
+            <input type="text" id="loginName" name="loginName" />
+        </div>
+        <div>
+            <label for="loginPassword">Password </label>
+            <input type="password" id="loginPassword" name="loginPassword"/>
+        </div>
+        <div>
+          <p id="errorLogin"></p>
+        </div>
+        <div>
+            <input type="submit" name="submit" value="Login" />
+        </div>
+    </form>
+    <script src="../authentification/authController.js" type="module"></script>
+</body>
+</html>

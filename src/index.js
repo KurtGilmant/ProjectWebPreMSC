@@ -3,10 +3,35 @@ const mysql = require('mysql2');
 require('dotenv').config();
 const setupSwagger = require('./swagger');
 const cors = require('cors');
+
 const bcrypt = require("bcrypt");
 
+const jwt = require("jsonwebtoken");
+const verifyJWT = require('../middleware/verifyJWT.js');
+const cookieParser = require("cookie-parser");
+
 const app = express();
-app.use(cors());
+
+// middleware for cookies
+app.use(cookieParser());
+
+const allowedOrigins = [
+  "http://127.0.0.1:5500",
+  "http://localhost:3000",
+  "http://localhost:5500",
+  // Add more origins as needed
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // important pour le POST
@@ -70,7 +95,7 @@ setupSwagger(app);
  *                   created_at:
  *                     type: string
  */
-app.get('/User', (req, res) => {
+app.get('/User', verifyJWT, (req, res) => {
   connection.query('SELECT * FROM User', (err, results) => {
     if (err) {
       console.error('Erreur requête SQL:', err);
@@ -354,11 +379,30 @@ app.post('/User', async (req, res) => {
  *                   example: Error hashing password
  */
 app.post('/User/login', async (req, res) => {
-    const {password,hashedPassword} = req.body;
+    const {password,hashedPassword,name} = req.body;
+    console.log('name from request:', name); // Debug line
     try {
       const testPassword = await bcrypt.compare(password, hashedPassword);
       if (testPassword) {
-        res.json({ success: true, message: 'Login successful' });
+        const accessToken = jwt.sign(
+          { name: name },
+          process.env.ACCESS_TOKEN_SECRET,
+          {expiresIn: '30s'}
+        );
+        console.log('Token payload:', { name: name }); // Debug line
+        const refreshToken = jwt.sign(
+          { name: name },
+          process.env.REFRESH_TOKEN_SECRET,
+          {expiresIn: '1d'}
+        );
+
+        res.cookie("jwt", refreshToken, {
+          httpOnly: true, 
+          maxAge: 24*60*60*1000,
+          sameSite: "lax", // or "lax" for local, but "none" is needed for cross-origin
+          secure: false     // set to true only if using HTTPS
+          });
+        res.json({accessToken, success: true, message: 'Login successful' });
       } else {
         res.status(401).json({ success: false, message: 'Invalid password' });
       }
@@ -367,6 +411,22 @@ app.post('/User/login', async (req, res) => {
       res.status(500).json({ success: false, error: 'Error hashing password' });
     }
   });
+
+app.post('/User/refresh', (req, res) => {
+  const refreshToken = req.cookies?.jwt;
+  if (!refreshToken) return res.sendStatus(401);
+
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    if (err) return res.sendStatus(403);
+    const accessToken = jwt.sign(
+      { name: decoded.name },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '30s' }
+    );
+    console.log('Token payload refresh:', { name: decoded.name }); // Debug line
+    res.json({ accessToken });
+  });
+});
 /**
  * @swagger
  * /User/{user_id}:
