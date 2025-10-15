@@ -35,8 +35,8 @@ CREATE TABLE Offer (
     language VARCHAR(30),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (company_id) REFERENCES Company(company_id),
-    FOREIGN KEY (category_id) REFERENCES Job_Category(job_category_id)
+    FOREIGN KEY (company_id) REFERENCES Company(company_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES Job_Category(job_category_id) ON DELETE CASCADE
 );
 
 -- Users
@@ -62,8 +62,8 @@ CREATE TABLE Application (
     applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(50) DEFAULT 'not reviewed',
 
-    FOREIGN KEY (offer_id) REFERENCES Offer(offer_id),
-    FOREIGN KEY (user_id) REFERENCES User(user_id)
+    FOREIGN KEY (offer_id) REFERENCES Offer(offer_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 -- User skills (many-to-many)
@@ -72,8 +72,8 @@ CREATE TABLE User_Skills (
     user_id INT NOT NULL,
     skill_id INT NOT NULL,
 
-    FOREIGN KEY (user_id) REFERENCES User(user_id),
-    FOREIGN KEY (skill_id) REFERENCES Skills(skill_id)
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES Skills(skill_id) ON DELETE CASCADE
 );
 
 -- Offer sought skills (many-to-many)
@@ -82,8 +82,8 @@ CREATE TABLE Sought_Skills (
     offer_id INT NOT NULL,
     skill_id INT NOT NULL,
     
-    FOREIGN KEY (offer_id) REFERENCES Offer(offer_id),
-    FOREIGN KEY (skill_id) REFERENCES Skills(skill_id)
+    FOREIGN KEY (offer_id) REFERENCES Offer(offer_id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES Skills(skill_id) ON DELETE CASCADE
 );
 
 
