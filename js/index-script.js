@@ -87,12 +87,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const searchTerm = searchInput.value.trim();
         
         if (searchTerm === '') {
-            window.location.href = 'offers.html';
+            window.location.href = 'pages/offers.html';
             return;
         }
         
         // Passer le terme de recherche via URL
-        window.location.href = `offers.html?search=${encodeURIComponent(searchTerm)}`;
+        window.location.href = `pages/offers.html?search=${encodeURIComponent(searchTerm)}`;
     }
     
     // Event listeners pour la recherche
