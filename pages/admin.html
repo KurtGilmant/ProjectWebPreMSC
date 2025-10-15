@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobly - Administration</title>
+    <link rel="stylesheet" href="../css/globals.css">
+    <link rel="stylesheet" href="../css/styleguide.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Administration</h1>
+            <p class="subtitle">Gérer les offres d'emploi</p>
+        </header>
+        
+        <main class="admin-content">
+            <!-- Formulaire d'ajout/modification -->
+            <div class="profile-card">
+                <h2 id="form-title">Ajouter une offre</h2>
+                <form id="job-form">
+                    <input type="hidden" id="job-id" name="id">
+                    <div class="form-group">
+                        <label for="job-title">Titre du poste *</label>
+                        <input type="text" id="job-title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="job-company">Entreprise *</label>
+                        <input type="text" id="job-company" name="company" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="job-description">Description *</label>
+                        <textarea id="job-description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="job-requirements">Compétences requises *</label>
+                        <input type="text" id="job-requirements" name="requirements" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="job-location">Localisation *</label>
+                        <input type="text" id="job-location" name="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="job-salary">Salaire *</label>
+                        <input type="text" id="job-salary" name="salary" required>
+                    </div>
+                    <div class="profile-actions">
+                        <button type="submit" class="submit-btn">Ajouter l'offre</button>
+                        <button type="button" id="cancel-btn" class="back-btn" style="display: none;">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Liste des offres -->
+            <div class="profile-card">
+                <h2>Offres existantes</h2>
+                <div id="jobs-list" class="jobs-admin-list"></div>
+            </div>
+            
+            <div class="profile-actions">
+                <a href="../index.html"><button class="back-btn">← Retour à l'accueil</button></a>
+            </div>
+        </main>
+    </div>
+    <script src="../js/admin-script.js"></script>
+</body>
+</html>

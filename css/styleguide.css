@@ -1,0 +1,39 @@
+:root {
+    --label-colorslc-l-secondary: rgba(60, 60, 67, 0.6);
+    --system-backgroundssb-l-primary: rgba(255, 255, 255, 1);
+    --small-text-font-family: "Inter", Helvetica;
+    --small-text-font-weight: 500;
+    --small-text-font-size: 16px;
+    --small-text-letter-spacing: 0px;
+    --small-text-line-height: 150%;
+    --small-text-font-style: normal;
+    --subheading-font-family: "Inter", Helvetica;
+    --subheading-font-weight: 400;
+    --subheading-font-size: 24px;
+    --subheading-letter-spacing: 0px;
+    --subheading-line-height: 150%;
+    --subheading-font-style: normal;
+    --body-text-font-family: "Inter", Helvetica;
+    --body-text-font-weight: 500;
+    --body-text-font-size: 20px;
+    --body-text-letter-spacing: 0px;
+    --body-text-line-height: 150%;
+    --body-text-font-style: normal;
+    --large-default-body-font-family: "Roboto", Helvetica;
+    --large-default-body-font-weight: 400;
+    --large-default-body-font-size: 17px;
+    --large-default-body-letter-spacing: 0.5px;
+    --large-default-body-line-height: 22px;
+    --large-default-body-font-style: normal;
+    --button-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+    --material-design-shadows-1: 0px 1px 2px 0px rgba(0, 0, 0, 0.2), 0px
+      0.10000000149011612px 0.30000001192092896px 0px rgba(0, 0, 0, 0.1);
+    --variable-collection-spacing-s: 24px;
+    --variable-collection-spacing-XS: 8px;
+    --variable-collection-spacing-m: 48px;
+    --variable-collection-spacing-SM: 32px;
+    --colors-border-border-default: var(--colors-border-default-default);
+    --colors-border-default-default: var(--colors-grey-200);
+    --colors-grey-200: rgba(230, 230, 230, 1);
+  }
+  
