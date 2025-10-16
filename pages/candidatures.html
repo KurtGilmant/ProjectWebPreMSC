@@ -102,6 +102,7 @@
                                     <p class="company"><strong>Candidat:</strong> ${app.applicant_name} (${app.applicant_email})</p>
                                     <p class="date">Candidature reçue le ${new Date(app.created_at).toLocaleDateString()}</p>
                                     <p class="message"><strong>Message:</strong> ${app.message || 'Aucun message'}</p>
+                                    ${app.candidate_cv ? `<p class="cv-link"><strong>CV:</strong> <a href="http://localhost:3000${app.candidate_cv}" target="_blank" style="color: #fca207; text-decoration: none; font-weight: 500;">📄 Télécharger le CV</a></p>` : '<p class="cv-link"><strong>CV:</strong> Non disponible</p>'}
                                 </div>
                                 <div class="candidature-actions">
                                     <div class="candidature-status status-${app.status}">${getStatusText(app.status)}</div>

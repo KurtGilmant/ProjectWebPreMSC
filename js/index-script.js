@@ -114,6 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupProfileLinks() {
         const isLoggedIn = localStorage.getItem('user') !== null;
         const isAdminLoggedIn = localStorage.getItem('admin') !== null;
+        const user = isLoggedIn ? JSON.parse(localStorage.getItem('user')) : null;
+        const isEmployer = user && user.role === 'employeur';
         
         // Lien Profil dans la navigation
         const profilLink = document.getElementById('profil-link');
@@ -121,6 +123,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isAdminLoggedIn) {
                 profilLink.href = 'pages/admin.html';
                 profilLink.querySelector('.text-wrapper-7').textContent = 'Admin';
+            } else if (isEmployer) {
+                profilLink.href = 'pages/entreprise-dashboard.html';
+                profilLink.querySelector('.text-wrapper-7').textContent = 'Dashboard';
             } else if (isLoggedIn) {
                 profilLink.href = 'pages/profil.html';
                 profilLink.querySelector('.text-wrapper-7').textContent = 'Mon Profil';
@@ -139,6 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (isAdminLoggedIn) {
                     link.href = 'pages/admin.html';
                     link.querySelector('.text-wrapper-18').textContent = 'Admin';
+                } else if (isEmployer) {
+                    link.href = 'pages/entreprise-dashboard.html';
+                    link.querySelector('.text-wrapper-18').textContent = 'Dashboard';
                 } else if (isLoggedIn) {
                     link.href = 'pages/profil.html';
                     link.querySelector('.text-wrapper-18').textContent = 'Mon Profil';

@@ -1918,11 +1918,13 @@ app.get('/Application/company/:user_id', (req, res) => {
     SELECT 
       a.*,
       o.title as offer_title,
-      c.name as company_name
+      c.name as company_name,
+      candidate.cv_path as candidate_cv
     FROM Application a
     LEFT JOIN Offer o ON a.offer_id = o.offer_id
     LEFT JOIN Company c ON o.company_id = c.company_id
     LEFT JOIN User u ON u.company_id = c.company_id
+    LEFT JOIN User candidate ON candidate.user_id = a.user_id
     WHERE u.user_id = ?
     ORDER BY a.created_at DESC
   `;
