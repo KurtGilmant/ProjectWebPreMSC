@@ -58,6 +58,12 @@
                 <div id="company-requests" class="requests-list"></div>
             </div>
             
+            <!-- Gestion des comptes entreprises -->
+            <div class="profile-card">
+                <h2>Comptes entreprises</h2>
+                <div id="companies-list" class="companies-admin-list"></div>
+            </div>
+            
             <!-- Liste des offres -->
             <div class="profile-card">
                 <h2>Offres existantes</h2>
@@ -69,6 +75,48 @@
             </div>
         </main>
     </div>
+
+    <!-- Modal pour éditer un compte entreprise -->
+    <div id="editCompanyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier le compte entreprise</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editCompanyForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label>Nom de l'entreprise:</label>
+                    <input type="text" id="editCompanyName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Nouveau mot de passe (laisser vide pour ne pas changer):</label>
+                    <input type="password" id="editPassword" placeholder="Nouveau mot de passe">
+                </div>
+                <div class="form-group">
+                    <label>Site web:</label>
+                    <input type="url" id="editWebsite">
+                </div>
+                <div class="form-group">
+                    <label>Localisation:</label>
+                    <input type="text" id="editLocation">
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="editDescription" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeEditModal()" class="btn-cancel">Annuler</button>
+                    <button type="submit" class="btn-save">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../js/admin-script.js"></script>
     <script>
         // Vérifier si l'utilisateur est admin

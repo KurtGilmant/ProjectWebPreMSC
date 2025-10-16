@@ -129,6 +129,33 @@ app.put('/User/:user_id/company/:company_id', (req, res) => {
   );
 });
 
+// Route pour récupérer les comptes entreprises
+app.get('/Admin/companies', (req, res) => {
+  const query = `
+    SELECT 
+      u.user_id,
+      u.email,
+      u.full_name,
+      u.role,
+      c.company_id,
+      c.name as company_name,
+      c.website,
+      c.location,
+      c.description
+    FROM User u
+    LEFT JOIN Company c ON u.company_id = c.company_id
+    WHERE u.role = 'employeur'
+  `;
+  
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Erreur SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json(results);
+  });
+});
+
 
 
 // Route pour l'upload de CV
@@ -800,27 +827,48 @@ app.post('/User/refresh', (req, res) => {
  *       404:
  *         description: user not found
  */
-app.put('/User/:user_id', (req, res) => {
+app.put('/User/:user_id', async (req, res) => {
   const user_id = req.params.user_id;
   const {email, password, full_name, role, resume} = req.body;
   
-  // Si le mot de passe est 'unchanged', on ne le met pas à jour
-  let query, params;
-  if (password === 'unchanged') {
-    query = 'UPDATE User SET email = ?, full_name = ?, role = ?, resume = ? WHERE user_id = ?';
-    params = [email, full_name, role, resume, user_id];
-  } else {
-    query = 'UPDATE User SET email = ?, password = ?, full_name = ?, role = ?, resume = ? WHERE user_id = ?';
-    params = [email, password, full_name, role, resume, user_id];
+  try {
+    // Récupérer les données actuelles de l'utilisateur
+    connection.query('SELECT * FROM User WHERE user_id = ?', [user_id], async (err, currentUser) => {
+      if (err || currentUser.length === 0) {
+        console.error('Erreur récupération utilisateur:', err);
+        return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      }
+      
+      const user = currentUser[0];
+      
+      // Utiliser les valeurs actuelles si les nouvelles sont undefined/null
+      const updatedEmail = email || user.email;
+      const updatedFullName = full_name || user.full_name;
+      const updatedRole = role || user.role;
+      const updatedResume = resume || user.resume;
+      
+      let query, params;
+      if (!password || password === 'unchanged') {
+        query = 'UPDATE User SET email = ?, full_name = ?, role = ?, resume = ? WHERE user_id = ?';
+        params = [updatedEmail, updatedFullName, updatedRole, updatedResume, user_id];
+      } else {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        query = 'UPDATE User SET email = ?, password = ?, full_name = ?, role = ?, resume = ? WHERE user_id = ?';
+        params = [updatedEmail, hashedPassword, updatedFullName, updatedRole, updatedResume, user_id];
+      }
+      
+      connection.query(query, params, (err, result) => {
+        if (err) {
+          console.error('Erreur SQL:', err);
+          return res.status(500).json({ error: 'Erreur base de données' });
+        }
+        res.json({ success: true, message: 'User updated successfully' });
+      });
+    });
+  } catch (error) {
+    console.error('Erreur bcrypt:', error);
+    res.status(500).json({ error: 'Erreur lors du hashage du mot de passe' });
   }
-  
-  connection.query(query, params, (err, result) => {
-    if (err) {
-      console.error('Erreur SQL:', err);
-      return res.status(500).json({ error: 'Erreur base de données' });
-    }
-    res.json({ success: true, message: 'User updated successfully' });
-  });
 });
 /**
  * @swagger
@@ -2452,4 +2500,39 @@ app.delete('/Sought_Skills/:id', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`✅ Serveur démarré sur le port ${PORT}`);
+});
+// Route pour mettre à jour une entreprise par user_id
+app.put('/Company/user/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  const { name, website, location, description } = req.body;
+  
+  // Trouver l'entreprise associée à cet utilisateur
+  connection.query(
+    'SELECT company_id FROM User WHERE user_id = ?',
+    [userId],
+    (err, userResult) => {
+      if (err || userResult.length === 0) {
+        console.error('Erreur récupération utilisateur:', err);
+        return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      }
+      
+      const companyId = userResult[0].company_id;
+      if (!companyId) {
+        return res.status(404).json({ error: 'Aucune entreprise associée à cet utilisateur' });
+      }
+      
+      // Mettre à jour l'entreprise
+      connection.query(
+        'UPDATE Company SET name = ?, website = ?, location = ?, description = ? WHERE company_id = ?',
+        [name, website, location, description, companyId],
+        (err, result) => {
+          if (err) {
+            console.error('Erreur SQL:', err);
+            return res.status(500).json({ error: 'Erreur base de données' });
+          }
+          res.json({ success: true, message: 'Company updated successfully' });
+        }
+      );
+    }
+  );
 });

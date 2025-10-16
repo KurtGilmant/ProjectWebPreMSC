@@ -1,6 +1,7 @@
 let jobs = [];
 let companies = [];
 let companyRequests = [];
+let companyAccounts = [];
 let editingId = null;
 
 // Charger les entreprises depuis l'API
@@ -224,10 +225,117 @@ async function rejectRequest(requestId) {
     }
 }
 
+// Charger les comptes entreprises
+async function loadCompanyAccounts() {
+    try {
+        const response = await fetch('http://localhost:3000/Admin/companies');
+        companyAccounts = await response.json();
+        displayCompanyAccounts();
+    } catch (error) {
+        console.error('Erreur lors du chargement des comptes entreprises:', error);
+    }
+}
+
+// Afficher les comptes entreprises
+function displayCompanyAccounts() {
+    const companiesList = document.getElementById('companies-list');
+    companiesList.innerHTML = '';
+    
+    if (companyAccounts.length === 0) {
+        companiesList.innerHTML = '<p style="color: #666;">Aucun compte entreprise</p>';
+        return;
+    }
+    
+    companyAccounts.forEach(account => {
+        const accountElement = document.createElement('div');
+        accountElement.className = 'company-admin-item';
+        accountElement.innerHTML = `
+            <div class="company-info">
+                <h3>${account.company_name || 'Entreprise sans nom'}</h3>
+                <p><strong>Contact:</strong> ${account.full_name} (${account.email})</p>
+                <p><strong>Localisation:</strong> ${account.location || 'Non renseignée'}</p>
+                <p><strong>Site web:</strong> ${account.website || 'Non renseigné'}</p>
+                <p><small>Description: ${account.description || 'Aucune description'}</small></p>
+            </div>
+            <div class="company-actions">
+                <button onclick="openEditModal(${account.user_id})" class="btn-edit">Modifier</button>
+                <button onclick="deleteCompanyAccount(${account.user_id})" class="btn-delete">Supprimer</button>
+            </div>
+        `;
+        companiesList.appendChild(accountElement);
+    });
+}
+
+// Ouvrir la modal d'édition
+function openEditModal(userId) {
+    const account = companyAccounts.find(acc => acc.user_id === userId);
+    if (!account) return;
+    
+    document.getElementById('editUserId').value = userId;
+    document.getElementById('editCompanyName').value = account.company_name || '';
+    document.getElementById('editEmail').value = account.email;
+    document.getElementById('editWebsite').value = account.website || '';
+    document.getElementById('editLocation').value = account.location || '';
+    document.getElementById('editDescription').value = account.description || '';
+    document.getElementById('editPassword').value = '';
+    
+    document.getElementById('editCompanyModal').style.display = 'block';
+}
+
+// Fermer la modal d'édition
+function closeEditModal() {
+    document.getElementById('editCompanyModal').style.display = 'none';
+}
+
+// Supprimer un compte entreprise
+async function deleteCompanyAccount(userId) {
+    if (confirm('Supprimer ce compte entreprise ? Cette action est irréversible.')) {
+        try {
+            const response = await fetch(`http://localhost:3000/User/${userId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                showNotification('Compte entreprise supprimé!', 'success');
+                await loadCompanyAccounts();
+            } else {
+                showNotification('Erreur lors de la suppression', 'error');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showNotification('Erreur lors de la suppression', 'error');
+        }
+    }
+}
+
+// Fonction pour afficher des notifications
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+        background: ${type === 'success' ? '#28a745' : '#dc3545'};
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 // Initialisation
 document.addEventListener('DOMContentLoaded', async function() {
     await loadCompanies();
     await loadCompanyRequests();
+    await loadCompanyAccounts();
     await loadJobs();
     
     // Gestion du formulaire
@@ -299,4 +407,64 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Bouton annuler
     document.getElementById('cancel-btn').addEventListener('click', cancelEdit);
+    
+    // Gestion du formulaire d'édition des comptes entreprise
+    const editForm = document.getElementById('editCompanyForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('editUserId').value;
+            const name = document.getElementById('editCompanyName').value;
+            const email = document.getElementById('editEmail').value;
+            const password = document.getElementById('editPassword').value;
+            const website = document.getElementById('editWebsite').value;
+            const location = document.getElementById('editLocation').value;
+            const description = document.getElementById('editDescription').value;
+            
+            const updateData = { email };
+            if (password && password.trim() !== '') {
+                updateData.password = password;
+            }
+            
+            try {
+                // Mettre à jour l'utilisateur
+                const userResponse = await fetch(`http://localhost:3000/User/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (userResponse.ok) {
+                    // Mettre à jour l'entreprise
+                    const companyResponse = await fetch(`http://localhost:3000/Company/user/${userId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, website, location, description })
+                    });
+                    
+                    if (companyResponse.ok) {
+                        closeEditModal();
+                        await loadCompanyAccounts();
+                        showNotification('Compte entreprise modifié avec succès!', 'success');
+                    } else {
+                        throw new Error('Erreur lors de la mise à jour de l\'entreprise');
+                    }
+                } else {
+                    throw new Error('Erreur lors de la mise à jour de l\'utilisateur');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la modification du compte entreprise', 'error');
+            }
+        });
+    }
+    
+    // Fermer la modal en cliquant à l'extérieur
+    window.onclick = function(event) {
+        const modal = document.getElementById('editCompanyModal');
+        if (event.target === modal) {
+            closeEditModal();
+        }
+    };
 });
