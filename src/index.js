@@ -18,12 +18,7 @@ const app = express();
 // middleware for cookies
 app.use(cookieParser());
 
-const allowedOrigins = [
-  "http://127.0.0.1:5500",
-  "http://localhost:3000",
-  "http://localhost:5500",
-  // Add more origins as needed
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
 
 app.use(cors({
   origin: function(origin, callback) {
