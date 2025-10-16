@@ -1,5 +1,6 @@
 let jobs = [];
 let companies = [];
+let companyRequests = [];
 let editingId = null;
 
 // Charger les entreprises depuis l'API
@@ -138,9 +139,95 @@ function cancelEdit() {
     document.getElementById('cancel-btn').style.display = 'none';
 }
 
+// Charger les demandes d'inscription
+async function loadCompanyRequests() {
+    try {
+        const response = await fetch('http://localhost:3000/Company/requests');
+        companyRequests = await response.json();
+        displayCompanyRequests();
+    } catch (error) {
+        console.error('Erreur lors du chargement des demandes:', error);
+    }
+}
+
+// Afficher les demandes d'inscription
+function displayCompanyRequests() {
+    const requestsList = document.getElementById('company-requests');
+    requestsList.innerHTML = '';
+    
+    const pendingRequests = companyRequests.filter(req => req.status === 'pending');
+    
+    if (pendingRequests.length === 0) {
+        requestsList.innerHTML = '<p style="color: #666;">Aucune demande en attente</p>';
+        return;
+    }
+    
+    pendingRequests.forEach(request => {
+        const requestElement = document.createElement('div');
+        requestElement.className = 'admin-job-item';
+        requestElement.innerHTML = `
+            <div class="admin-job-info">
+                <h3>${request.company_name}</h3>
+                <p><strong>Contact:</strong> ${request.contact_name} (${request.email})</p>
+                <p><strong>Description:</strong> ${request.description}</p>
+                <p><small>Demande du ${new Date(request.created_at).toLocaleDateString()}</small></p>
+            </div>
+            <div class="admin-job-actions">
+                <button class="learn-more" onclick="approveRequest(${request.request_id})">Approuver</button>
+                <button class="back-btn" onclick="rejectRequest(${request.request_id})">Rejeter</button>
+            </div>
+        `;
+        requestsList.appendChild(requestElement);
+    });
+}
+
+// Approuver une demande
+async function approveRequest(requestId) {
+    if (confirm('Approuver cette demande d\'inscription ?')) {
+        try {
+            const response = await fetch(`http://localhost:3000/Company/requests/${requestId}/approve`, {
+                method: 'PUT'
+            });
+            
+            if (response.ok) {
+                alert('Demande approuvée et compte créé !');
+                await loadCompanyRequests();
+                await loadCompanies();
+            } else {
+                alert('Erreur lors de l\'approbation');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'approbation');
+        }
+    }
+}
+
+// Rejeter une demande
+async function rejectRequest(requestId) {
+    if (confirm('Rejeter cette demande d\'inscription ?')) {
+        try {
+            const response = await fetch(`http://localhost:3000/Company/requests/${requestId}/reject`, {
+                method: 'PUT'
+            });
+            
+            if (response.ok) {
+                alert('Demande rejetée');
+                await loadCompanyRequests();
+            } else {
+                alert('Erreur lors du rejet');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors du rejet');
+        }
+    }
+}
+
 // Initialisation
 document.addEventListener('DOMContentLoaded', async function() {
     await loadCompanies();
+    await loadCompanyRequests();
     await loadJobs();
     
     // Gestion du formulaire

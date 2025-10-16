@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobly - Dashboard Entreprise</title>
+    <link rel="stylesheet" href="../css/globals.css">
+    <link rel="stylesheet" href="../css/styleguide.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="company-title">Dashboard Entreprise</h1>
+            <p class="subtitle">Gérez vos offres d'emploi</p>
+        </header>
+        
+        <main class="admin-content">
+            <!-- Formulaire d'ajout/modification d'offre -->
+            <div class="profile-card">
+                <h2 id="form-title">Créer une nouvelle offre</h2>
+                <form id="offer-form">
+                    <input type="hidden" id="offer-id" name="id">
+                    <div class="form-group">
+                        <label for="offer-title">Titre du poste *</label>
+                        <input type="text" id="offer-title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-description">Description *</label>
+                        <textarea id="offer-description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-location">Localisation *</label>
+                        <input type="text" id="offer-location" name="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-contract">Type de contrat *</label>
+                        <select id="offer-contract" name="contract_type" required>
+                            <option value="CDI">CDI</option>
+                            <option value="CDD">CDD</option>
+                            <option value="Stage">Stage</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-salary">Salaire (€/an) *</label>
+                        <input type="number" id="offer-salary" name="salary" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-rythm">Rythme *</label>
+                        <select id="offer-rythm" name="rythm" required>
+                            <option value="full-time">Temps plein</option>
+                            <option value="part-time">Temps partiel</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="offer-remote" name="remote"> Télétravail possible
+                        </label>
+                    </div>
+                    <div class="profile-actions">
+                        <button type="submit" class="submit-btn">Publier l'offre</button>
+                        <button type="button" id="cancel-btn" class="back-btn" style="display: none;">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Liste des offres de l'entreprise -->
+            <div class="profile-card">
+                <h2>Mes offres publiées</h2>
+                <div id="company-offers" class="jobs-admin-list"></div>
+            </div>
+            
+            <div class="profile-actions">
+                <a href="../index.html"><button class="back-btn">← Retour à l'accueil</button></a>
+                <button class="back-btn" onclick="logout()">Déconnexion</button>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let companyOffers = [];
+        let editingId = null;
+        
+        // Vérifier l'authentification et charger les données
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('Vous devez être connecté');
+                window.location.href = 'connexion.html';
+                return;
+            }
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const userName = payload.name;
+                
+                const response = await fetch(`http://localhost:3000/User/find-user/${encodeURIComponent(userName)}`);
+                if (response.ok) {
+                    currentUser = await response.json();
+                    console.log('Utilisateur chargé:', currentUser);
+                    
+                    if (!currentUser) {
+                        throw new Error('Utilisateur non trouvé dans la réponse');
+                    }
+                    
+                    if (currentUser.role !== 'employeur') {
+                        alert('Accès réservé aux entreprises');
+                        window.location.href = '../index.html';
+                        return;
+                    }
+                    
+                    document.getElementById('company-title').textContent = `Dashboard - ${currentUser.company_name || 'Entreprise'}`;
+                    await loadCompanyOffers();
+                } else {
+                    const errorText = await response.text();
+                    console.error('Erreur API:', response.status, errorText);
+                    throw new Error(`Utilisateur non trouvé: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur d\'authentification');
+                window.location.href = 'connexion.html';
+            }
+            
+            // Event listeners
+            document.getElementById('offer-form').addEventListener('submit', handleFormSubmit);
+            document.getElementById('cancel-btn').addEventListener('click', cancelEdit);
+        });
+        
+        // Charger les offres de l'entreprise
+        async function loadCompanyOffers() {
+            try {
+                const response = await fetch(`http://localhost:3000/Offer/company/${currentUser.user_id}`);
+                companyOffers = await response.json();
+                displayOffers();
+            } catch (error) {
+                console.error('Erreur lors du chargement des offres:', error);
+            }
+        }
+        
+        // Afficher les offres
+        function displayOffers() {
+            const offersContainer = document.getElementById('company-offers');
+            offersContainer.innerHTML = '';
+            
+            if (companyOffers.length === 0) {
+                offersContainer.innerHTML = '<p style="color: #666;">Aucune offre publiée</p>';
+                return;
+            }
+            
+            companyOffers.forEach(offer => {
+                const offerElement = document.createElement('div');
+                offerElement.className = 'admin-job-item';
+                offerElement.innerHTML = `
+                    <div class="admin-job-info">
+                        <h3>${offer.title}</h3>
+                        <p><strong>${offer.contract_type}</strong> - ${offer.location}</p>
+                        <p>${offer.description}</p>
+                        <p><strong>Salaire:</strong> ${offer.salary}€/an</p>
+                        <p><small>Statut: ${offer.status}</small></p>
+                    </div>
+                    <div class="admin-job-actions">
+                        <button class="learn-more" onclick="editOffer(${offer.offer_id})">Modifier</button>
+                        <button class="back-btn" onclick="deleteOffer(${offer.offer_id})">Supprimer</button>
+                    </div>
+                `;
+                offersContainer.appendChild(offerElement);
+            });
+        }
+        
+        // Gérer la soumission du formulaire
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Vérifier que l'utilisateur a un company_id
+            if (!currentUser.company_id) {
+                alert('Erreur: Aucune entreprise associée à ce compte');
+                console.error('currentUser:', currentUser);
+                return;
+            }
+            
+            const formData = new FormData(this);
+            const offerData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                company_id: currentUser.company_id,
+                location: formData.get('location'),
+                contract_type: formData.get('contract_type'),
+                salary: parseInt(formData.get('salary')),
+                category_id: 1,
+                status: 'open',
+                rythm: formData.get('rythm'),
+                remote: formData.has('remote'),
+                language: 'French'
+            };
+            
+            console.log('Données envoyées:', offerData);
+            
+            try {
+                let response;
+                if (editingId) {
+                    response = await fetch(`http://localhost:3000/Offer/${editingId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(offerData)
+                    });
+                } else {
+                    response = await fetch('http://localhost:3000/Offer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(offerData)
+                    });
+                }
+                
+                if (response.ok) {
+                    alert(editingId ? 'Offre modifiée avec succès!' : 'Offre créée avec succès!');
+                    this.reset();
+                    cancelEdit();
+                    await loadCompanyOffers();
+                } else {
+                    const errorText = await response.text();
+                    console.error('Erreur réponse:', errorText);
+                    alert('Erreur lors de la sauvegarde: ' + errorText);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la sauvegarde: ' + error.message);
+            }
+        }
+        
+        // Modifier une offre
+        function editOffer(offerId) {
+            const offer = companyOffers.find(o => o.offer_id === offerId);
+            if (!offer) return;
+            
+            editingId = offerId;
+            document.getElementById('form-title').textContent = 'Modifier l\'offre';
+            document.getElementById('offer-id').value = offer.offer_id;
+            document.getElementById('offer-title').value = offer.title;
+            document.getElementById('offer-description').value = offer.description;
+            document.getElementById('offer-location').value = offer.location;
+            document.getElementById('offer-contract').value = offer.contract_type;
+            document.getElementById('offer-salary').value = offer.salary;
+            document.getElementById('offer-rythm').value = offer.rythm;
+            document.getElementById('offer-remote').checked = offer.remote;
+            document.querySelector('.submit-btn').textContent = 'Modifier l\'offre';
+            document.getElementById('cancel-btn').style.display = 'inline-block';
+        }
+        
+        // Supprimer une offre
+        async function deleteOffer(offerId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')) return;
+            
+            try {
+                const response = await fetch(`http://localhost:3000/Offer/${offerId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('Offre supprimée avec succès!');
+                    await loadCompanyOffers();
+                } else {
+                    alert('Erreur lors de la suppression');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression');
+            }
+        }
+        
+        // Annuler l'édition
+        function cancelEdit() {
+            editingId = null;
+            document.getElementById('form-title').textContent = 'Créer une nouvelle offre';
+            document.getElementById('offer-form').reset();
+            document.querySelector('.submit-btn').textContent = 'Publier l\'offre';
+            document.getElementById('cancel-btn').style.display = 'none';
+        }
+        
+        // Déconnexion
+        function logout() {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('admin');
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

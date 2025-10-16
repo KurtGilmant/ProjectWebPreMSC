@@ -91,11 +91,117 @@ function connectWithRetry() {
 
 connectWithRetry();
 
+// Ajouter la colonne company_id si elle n'existe pas
+setTimeout(() => {
+  connection.query('SHOW COLUMNS FROM User LIKE "company_id"', (err, result) => {
+    if (err) {
+      console.error('Erreur vérification colonne company_id:', err);
+      return;
+    }
+    
+    if (result.length === 0) {
+      connection.query('ALTER TABLE User ADD COLUMN company_id INT', (err) => {
+        if (err) {
+          console.error('Erreur ajout colonne company_id:', err);
+        } else {
+          console.log('✅ Colonne company_id ajoutée à la table User');
+        }
+      });
+    }
+  });
+}, 2000);
 
 // Setup API
 
 // ✅ Ajout de Swagger
 setupSwagger(app);
+
+// Route pour associer un utilisateur à une entreprise
+app.put('/User/:user_id/company/:company_id', (req, res) => {
+  const userId = req.params.user_id;
+  const companyId = req.params.company_id;
+  
+  connection.query(
+    'UPDATE User SET company_id = ? WHERE user_id = ?',
+    [companyId, userId],
+    (err, result) => {
+      if (err) {
+        console.error('Erreur SQL:', err);
+        return res.status(500).json({ error: 'Erreur base de données' });
+      }
+      res.json({ success: true, message: 'Utilisateur associé à l\'entreprise' });
+    }
+  );
+});
+
+// Route de debug pour associer automatiquement kurt.gilmant@epitech.eu
+app.get('/debug/fix-kurt', (req, res) => {
+  // Trouver l'utilisateur kurt.gilmant@epitech.eu
+  connection.query('SELECT user_id FROM User WHERE email = ?', ['kurt.gilmant@epitech.eu'], (err, users) => {
+    if (err || users.length === 0) {
+      return res.json({ error: 'Utilisateur non trouvé' });
+    }
+    
+    const userId = users[0].user_id;
+    
+    // Trouver la première entreprise disponible
+    connection.query('SELECT company_id FROM Company LIMIT 1', (err, companies) => {
+      if (err || companies.length === 0) {
+        return res.json({ error: 'Aucune entreprise trouvée' });
+      }
+      
+      const companyId = companies[0].company_id;
+      
+      // Associer l'utilisateur à l'entreprise
+      connection.query(
+        'UPDATE User SET company_id = ? WHERE user_id = ?',
+        [companyId, userId],
+        (err, result) => {
+          if (err) {
+            return res.json({ error: 'Erreur mise à jour' });
+          }
+          res.json({ 
+            success: true, 
+            message: `Utilisateur ${userId} associé à l'entreprise ${companyId}` 
+          });
+        }
+      );
+    });
+  });
+});
+
+// Route pour lister les tables existantes
+app.get('/debug/tables', (req, res) => {
+  connection.query('SHOW TABLES', (err, results) => {
+    if (err) {
+      console.error('Erreur:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    const tables = results.map(row => Object.values(row)[0]);
+    
+    // Pour chaque table, récupérer sa structure
+    const tableDetails = {};
+    let completed = 0;
+    
+    if (tables.length === 0) {
+      return res.json({ tables: [], details: {} });
+    }
+    
+    tables.forEach(tableName => {
+      connection.query(`DESCRIBE ${tableName}`, (err, columns) => {
+        if (!err) {
+          tableDetails[tableName] = columns;
+        }
+        completed++;
+        
+        if (completed === tables.length) {
+          res.json({ tables, details: tableDetails });
+        }
+      });
+    });
+  });
+});
 
 // Route pour l'upload de CV
 app.post('/User/:user_id/upload-cv', upload.single('cv'), (req, res) => {
@@ -107,7 +213,7 @@ app.post('/User/:user_id/upload-cv', upload.single('cv'), (req, res) => {
   
   const cvPath = `/uploads/cv/${req.file.filename}`;
   
-  // Vérifier si la colonne cv_path existe, sinon l'ajouter
+  // Vérifier et ajouter les colonnes nécessaires
   connection.query('SHOW COLUMNS FROM User LIKE "cv_path"', (err, result) => {
     if (err) {
       console.error('Erreur vérification colonne:', err);
@@ -115,16 +221,33 @@ app.post('/User/:user_id/upload-cv', upload.single('cv'), (req, res) => {
     }
     
     if (result.length === 0) {
-      // Ajouter la colonne cv_path
       connection.query('ALTER TABLE User ADD COLUMN cv_path VARCHAR(500)', (err) => {
         if (err) {
-          console.error('Erreur ajout colonne:', err);
-          return res.status(500).json({ success: false, error: 'Erreur ajout colonne' });
+          console.error('Erreur ajout colonne cv_path:', err);
         }
-        updateCvPath();
+        checkCompanyIdColumn();
       });
     } else {
-      updateCvPath();
+      checkCompanyIdColumn();
+    }
+    
+    function checkCompanyIdColumn() {
+      connection.query('SHOW COLUMNS FROM User LIKE "company_id"', (err, result) => {
+        if (err) {
+          console.error('Erreur vérification colonne company_id:', err);
+        }
+        
+        if (result.length === 0) {
+          connection.query('ALTER TABLE User ADD COLUMN company_id INT', (err) => {
+            if (err) {
+              console.error('Erreur ajout colonne company_id:', err);
+            }
+            updateCvPath();
+          });
+        } else {
+          updateCvPath();
+        }
+      });
     }
     
     function updateCvPath() {
@@ -149,6 +272,139 @@ app.post('/User/:user_id/upload-cv', upload.single('cv'), (req, res) => {
   });
 });
 
+
+// --- Company Registration Requests ---
+app.post('/Company/request', (req, res) => {
+  const { company_name, contact_name, email, phone, description } = req.body;
+  
+  // Créer la table si elle n'existe pas
+  connection.query(`
+    CREATE TABLE IF NOT EXISTS Company_Registration_Request (
+      request_id INT AUTO_INCREMENT PRIMARY KEY,
+      company_name VARCHAR(255) NOT NULL,
+      contact_name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      phone VARCHAR(20),
+      description TEXT,
+      status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Erreur création table:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    
+    // Insérer la demande
+    connection.query(
+      'INSERT INTO Company_Registration_Request (company_name, contact_name, email, phone, description) VALUES (?, ?, ?, ?, ?)',
+      [company_name, contact_name, email, phone, description],
+      (err, result) => {
+        if (err) {
+          console.error('Erreur SQL:', err);
+          return res.status(500).json({ error: 'Erreur base de données' });
+        }
+        res.json({ success: true, message: 'Demande d\'inscription envoyée avec succès' });
+      }
+    );
+  });
+});
+
+app.get('/Company/requests', (req, res) => {
+  connection.query('SELECT * FROM Company_Registration_Request ORDER BY created_at DESC', (err, results) => {
+    if (err) {
+      console.error('Erreur SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json(results);
+  });
+});
+
+app.put('/Company/requests/:id/approve', async (req, res) => {
+  const requestId = req.params.id;
+  
+  try {
+    // Récupérer la demande
+    connection.query('SELECT * FROM Company_Registration_Request WHERE request_id = ?', [requestId], async (err, results) => {
+      if (err || results.length === 0) {
+        console.error('Erreur récupération demande:', err);
+        return res.status(404).json({ error: 'Demande non trouvée' });
+      }
+      
+      const request = results[0];
+      const hashedPassword = await bcrypt.hash('temp123', 10);
+      
+      // Créer l'entreprise
+      connection.query(
+        'INSERT INTO Company (name, website, location, description) VALUES (?, ?, ?, ?)',
+        [request.company_name, '', '', request.description],
+        (err, companyResult) => {
+          if (err) {
+            console.error('Erreur création entreprise:', err);
+            return res.status(500).json({ error: 'Erreur création entreprise: ' + err.message });
+          }
+          
+          // Vérifier si la colonne company_id existe dans User
+          connection.query('SHOW COLUMNS FROM User LIKE "company_id"', (err, columns) => {
+            if (err) {
+              console.error('Erreur vérification colonne:', err);
+            }
+            
+            let userQuery, userParams;
+            if (columns.length > 0) {
+              // La colonne company_id existe
+              userQuery = 'INSERT INTO User (email, password, full_name, role, resume, company_id) VALUES (?, ?, ?, ?, ?, ?)';
+              userParams = [request.email, hashedPassword, request.contact_name, 'employeur', `Contact pour ${request.company_name}`, companyResult.insertId];
+            } else {
+              // La colonne company_id n'existe pas
+              userQuery = 'INSERT INTO User (email, password, full_name, role, resume) VALUES (?, ?, ?, ?, ?)';
+              userParams = [request.email, hashedPassword, request.contact_name, 'employeur', `Contact pour ${request.company_name}`];
+            }
+            
+            // Créer le compte utilisateur
+            connection.query(userQuery, userParams, (err, userResult) => {
+              if (err) {
+                console.error('Erreur création utilisateur:', err);
+                return res.status(500).json({ error: 'Erreur création utilisateur: ' + err.message });
+              }
+              
+              // Marquer la demande comme approuvée
+              connection.query(
+                'UPDATE Company_Registration_Request SET status = "approved" WHERE request_id = ?',
+                [requestId],
+                (err) => {
+                  if (err) {
+                    console.error('Erreur mise à jour demande:', err);
+                  }
+                  res.json({ success: true, message: 'Demande approuvée et compte créé' });
+                }
+              );
+            });
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Erreur générale:', error);
+    res.status(500).json({ error: 'Erreur serveur: ' + error.message });
+  }
+});
+
+app.put('/Company/requests/:id/reject', (req, res) => {
+  const requestId = req.params.id;
+  
+  connection.query(
+    'UPDATE Company_Registration_Request SET status = "rejected" WHERE request_id = ?',
+    [requestId],
+    (err, result) => {
+      if (err) {
+        console.error('Erreur SQL:', err);
+        return res.status(500).json({ error: 'Erreur base de données' });
+      }
+      res.json({ success: true, message: 'Demande rejetée' });
+    }
+  );
+});
 
 // --- User CRUD ---
 /**
@@ -226,9 +482,33 @@ app.get('/User', (req, res) => {
  */
 app.get('/User/:user_id', (req, res) => {
   const userId = req.params.user_id;
-  connection.query('SELECT * FROM User WHERE user_id = ?', userId, (err, rows) => {
-    if (err) throw err;
-    res.json(rows[0]);
+  
+  // Vérifier si la colonne company_id existe
+  connection.query('SHOW COLUMNS FROM User LIKE "company_id"', (err, columns) => {
+    if (err) {
+      console.error('Erreur vérification colonne:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    
+    let query;
+    if (columns.length > 0) {
+      query = `
+        SELECT u.*, c.name as company_name 
+        FROM User u 
+        LEFT JOIN Company c ON u.company_id = c.company_id 
+        WHERE u.user_id = ?
+      `;
+    } else {
+      query = 'SELECT * FROM User WHERE user_id = ?';
+    }
+    
+    connection.query(query, [userId], (err, rows) => {
+      if (err) {
+        console.error('Erreur requête SQL:', err);
+        return res.status(500).json({ error: 'Erreur base de données' });
+      }
+      res.json(rows[0]);
+    });
   });
 });
 /**
@@ -278,12 +558,35 @@ app.get('/User/:user_id', (req, res) => {
  */
 app.get('/User/find-user/:full_name', (req, res) => {
   const userName = req.params.full_name;
-  connection.query('SELECT * FROM User WHERE full_name = ?', userName, (err, rows) => {
+  
+  // Vérifier si la colonne company_id existe
+  connection.query('SHOW COLUMNS FROM User LIKE "company_id"', (err, columns) => {
     if (err) {
-      console.error('Erreur requête SQL:', err);
-      return res.status(404).json({ error: 'Erreur base de données' });
+      console.error('Erreur vérification colonne:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
     }
-    res.json(rows[0]);
+    
+    let query;
+    if (columns.length > 0) {
+      // La colonne company_id existe
+      query = `
+        SELECT u.*, c.name as company_name 
+        FROM User u 
+        LEFT JOIN Company c ON u.company_id = c.company_id 
+        WHERE u.full_name = ?
+      `;
+    } else {
+      // La colonne company_id n'existe pas
+      query = 'SELECT * FROM User WHERE full_name = ?';
+    }
+    
+    connection.query(query, [userName], (err, rows) => {
+      if (err) {
+        console.error('Erreur requête SQL:', err);
+        return res.status(404).json({ error: 'Erreur base de données' });
+      }
+      res.json(rows[0]);
+    });
   });
 });
 /**
@@ -1263,6 +1566,39 @@ app.get('/Offer/with-companies', (req, res) => {
   `;
   
   connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Erreur requête SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json(results);
+  });
+});
+
+// Route pour récupérer les offres d'une entreprise spécifique
+app.get('/Offer/company/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  
+  const query = `
+    SELECT 
+      o.offer_id,
+      o.title,
+      o.description,
+      o.location,
+      o.contract_type,
+      o.salary,
+      o.status,
+      o.rythm,
+      o.remote,
+      o.language,
+      c.name as company_name,
+      c.company_id
+    FROM Offer o
+    LEFT JOIN Company c ON o.company_id = c.company_id
+    LEFT JOIN User u ON u.company_id = c.company_id
+    WHERE u.user_id = ?
+  `;
+  
+  connection.query(query, [userId], (err, results) => {
     if (err) {
       console.error('Erreur requête SQL:', err);
       return res.status(500).json({ error: 'Erreur base de données' });

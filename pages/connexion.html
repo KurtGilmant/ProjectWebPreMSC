@@ -61,7 +61,13 @@
             
             if (result.success) {
                 alert('Connexion réussie !');
-                window.location.href = 'profil.html';
+                
+                // Rediriger selon le rôle
+                if (result.user.role === 'employeur') {
+                    window.location.href = 'entreprise-dashboard.html';
+                } else {
+                    window.location.href = 'profil.html';
+                }
             } else {
                 alert('Erreur: ' + result.error);
             }
