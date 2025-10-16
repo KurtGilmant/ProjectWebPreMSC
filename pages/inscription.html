@@ -48,9 +48,32 @@
             </div>
             
             <div class="profile-actions">
-                <a href="index.html"><button class="back-btn">← Retour à l'accueil</button></a>
+                <a href="../index.html"><button class="back-btn">← Retour à l'accueil</button></a>
             </div>
         </main>
     </div>
+    <script src="../js/auth.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                full_name: document.getElementById('prenom').value + ' ' + document.getElementById('nom').value,
+                role: 'candidate',
+                resume: 'Profil créé via le site web'
+            };
+            
+            const result = await register(formData);
+            
+            if (result.success) {
+                alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+                window.location.href = 'connexion.html';
+            } else {
+                alert('Erreur: ' + result.error);
+            }
+        });
+    </script>
 </body>
 </html>

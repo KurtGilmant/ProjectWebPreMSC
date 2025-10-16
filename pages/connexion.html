@@ -36,5 +36,23 @@
             </div>
         </main>
     </div>
+    <script src="../js/auth.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const result = await login(email, password);
+            
+            if (result.success) {
+                alert('Connexion réussie !');
+                window.location.href = 'profil.html';
+            } else {
+                alert('Erreur: ' + result.error);
+            }
+        });
+    </script>
 </body>
 </html>

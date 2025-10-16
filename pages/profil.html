@@ -18,18 +18,18 @@
         <main class="profile-content">
             <div class="profile-card">
                 <h2>Informations personnelles</h2>
-                <div class="profile-info">
+                <div class="profile-info" id="profile-info">
                     <div class="info-item">
-                        <strong>Nom :</strong> Jean Dupont
+                        <strong>Nom :</strong> <span id="user-name">Chargement...</span>
                     </div>
                     <div class="info-item">
-                        <strong>Email :</strong> jean.dupont@email.com
+                        <strong>Email :</strong> <span id="user-email">Chargement...</span>
                     </div>
                     <div class="info-item">
-                        <strong>Téléphone :</strong> 06 12 34 56 78
+                        <strong>Rôle :</strong> <span id="user-role">Chargement...</span>
                     </div>
                     <div class="info-item">
-                        <strong>Présentation :</strong> Développeur passionné avec 3 ans d'expérience en développement web.
+                        <strong>Présentation :</strong> <span id="user-resume">Chargement...</span>
                     </div>
                 </div>
             </div>
@@ -37,8 +37,35 @@
             <div class="profile-actions">
                 <a href="../index.html"><button class="back-btn">← Retour à l'accueil</button></a>
                 <a href="offers.html"><button class="learn-more">Voir les offres</button></a>
+                <button class="back-btn" onclick="logout()">Déconnexion</button>
             </div>
         </main>
     </div>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Vérifier si l'utilisateur est connecté
+        if (!isLoggedIn()) {
+            window.location.href = 'connexion.html';
+        } else {
+            // Charger les infos utilisateur
+            const user = getCurrentUser();
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-role').textContent = user.role;
+            
+            // Charger les détails complets depuis l'API
+            fetch(`http://localhost:3000/User/${user.id}`, {
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(userData => {
+                document.getElementById('user-resume').textContent = userData.resume || 'Aucune présentation';
+            })
+            .catch(error => {
+                console.error('Erreur chargement profil:', error);
+                document.getElementById('user-resume').textContent = 'Erreur de chargement';
+            });
+        }
+    </script>
 </body>
 </html>

@@ -95,7 +95,7 @@ setupSwagger(app);
  *                   created_at:
  *                     type: string
  */
-app.get('/User', verifyJWT, (req, res) => {
+app.get('/User', (req, res) => {
   connection.query('SELECT * FROM User', (err, results) => {
     if (err) {
       console.error('Erreur requête SQL:', err);
