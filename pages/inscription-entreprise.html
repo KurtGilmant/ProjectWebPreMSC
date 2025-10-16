@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobly - Inscription Entreprise</title>
+    <link rel="stylesheet" href="../css/globals.css">
+    <link rel="stylesheet" href="../css/styleguide.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Inscription Entreprise</h1>
+            <p class="subtitle">Demande d'accès pour publier des offres</p>
+        </header>
+        
+        <div class="profile-actions">
+            <a href="../index.html"><button class="back-btn">← Retour à l'accueil</button></a>
+        </div>
+        
+        <main class="profile-content">
+            <div class="profile-card">
+                <h2>Informations de l'entreprise</h2>
+                <form id="company-registration-form">
+                    <div class="form-group">
+                        <label for="company-name">Nom de l'entreprise *</label>
+                        <input type="text" id="company-name" name="company_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-name">Nom du contact *</label>
+                        <input type="text" id="contact-name" name="contact_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email professionnel *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Téléphone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description de l'entreprise *</label>
+                        <textarea id="description" name="description" rows="4" required placeholder="Décrivez votre entreprise, secteur d'activité, taille..."></textarea>
+                    </div>
+                    <div class="profile-actions">
+                        <button type="submit" class="submit-btn">Envoyer la demande</button>
+                    </div>
+                </form>
+                
+                <div id="success-message" style="display: none; text-align: center; padding: 20px; background-color: #d4edda; color: #155724; border-radius: 8px; margin-top: 20px;">
+                    <h3>✅ Demande envoyée avec succès !</h3>
+                    <p>Votre demande d'inscription a été transmise à notre équipe. Vous recevrez une réponse par email sous 48h.</p>
+                    <p><strong>Prochaines étapes :</strong></p>
+                    <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+                        <li>Validation de votre demande par notre équipe</li>
+                        <li>Création de votre compte entreprise</li>
+                        <li>Envoi de vos identifiants par email</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        document.getElementById('company-registration-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const requestData = {
+                company_name: formData.get('company_name'),
+                contact_name: formData.get('contact_name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                description: formData.get('description')
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3000/Company/request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (response.ok) {
+                    document.querySelector('.profile-card form').style.display = 'none';
+                    document.getElementById('success-message').style.display = 'block';
+                } else {
+                    alert('Erreur lors de l\'envoi de la demande');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'envoi de la demande');
+            }
+        });
+    </script>
+</body>
+</html>
