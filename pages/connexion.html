@@ -44,6 +44,19 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
+            // Vérifier si c'est l'admin
+            if (email === 'admin@admin.admin' && password === 'admin') {
+                // Connexion admin
+                localStorage.setItem('admin', JSON.stringify({
+                    email: 'admin@admin.admin',
+                    role: 'admin',
+                    name: 'Administrateur'
+                }));
+                alert('Connexion administrateur réussie !');
+                window.location.href = 'admin.html';
+                return;
+            }
+            
             const result = await login(email, password);
             
             if (result.success) {

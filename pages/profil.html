@@ -18,25 +18,33 @@
         <main class="profile-content">
             <div class="profile-card">
                 <h2>Informations personnelles</h2>
-                <div class="profile-info" id="profile-info">
-                    <div class="info-item">
-                        <strong>Nom :</strong> <span id="user-name">Chargement...</span>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="full_name">Nom complet *</label>
+                        <input type="text" id="full_name" name="full_name" required>
                     </div>
-                    <div class="info-item">
-                        <strong>Email :</strong> <span id="user-email">Chargement...</span>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
                     </div>
-                    <div class="info-item">
-                        <strong>Rôle :</strong> <span id="user-role">Chargement...</span>
+                    <div class="form-group">
+                        <label for="resume">Présentation</label>
+                        <textarea id="resume" name="resume" rows="4" placeholder="Décrivez votre profil, vos compétences, votre expérience..."></textarea>
                     </div>
-                    <div class="info-item">
-                        <strong>Présentation :</strong> <span id="user-resume">Chargement...</span>
+                    <div class="form-group">
+                        <label for="cv-upload">CV (PDF uniquement)</label>
+                        <input type="file" id="cv-upload" name="cv" accept=".pdf" style="margin-bottom: 5px;">
+                        <small style="color: #6c757d; font-size: 0.875em;">Taille maximum : 5MB</small>
                     </div>
-                </div>
+                    <button type="submit" class="submit-btn">Mettre à jour</button>
+                </form>
             </div>
             
             <div class="profile-actions">
                 <a href="../index.html"><button class="back-btn">← Retour à l'accueil</button></a>
                 <a href="offers.html"><button class="learn-more">Voir les offres</button></a>
+                <a href="candidatures.html"><button class="learn-more">Mes candidatures</button></a>
+                <a href="change-password.html"><button class="learn-more">Changer mot de passe</button></a>
                 <button class="back-btn" onclick="logout()">Déconnexion</button>
             </div>
         </main>
@@ -47,25 +55,151 @@
         if (!isLoggedIn()) {
             window.location.href = 'connexion.html';
         } else {
-            // Charger les infos utilisateur
-            const user = getCurrentUser();
-            document.getElementById('user-name').textContent = user.name;
-            document.getElementById('user-email').textContent = user.email;
-            document.getElementById('user-role').textContent = user.role;
-            
-            // Charger les détails complets depuis l'API
-            fetch(`http://localhost:3000/User/${user.id}`, {
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(userData => {
-                document.getElementById('user-resume').textContent = userData.resume || 'Aucune présentation';
-            })
-            .catch(error => {
-                console.error('Erreur chargement profil:', error);
-                document.getElementById('user-resume').textContent = 'Erreur de chargement';
-            });
+            loadUserProfile();
         }
+        
+        // Fonction pour charger le profil utilisateur
+        async function loadUserProfile() {
+            const user = getCurrentUser();
+            
+            try {
+                const response = await fetch(`http://localhost:3000/User/${user.id}`, {
+                    credentials: 'include'
+                });
+                const userData = await response.json();
+                
+                // Remplir le formulaire avec les données existantes
+                document.getElementById('full_name').value = userData.full_name || '';
+                document.getElementById('email').value = userData.email || '';
+                document.getElementById('resume').value = userData.resume || '';
+                
+                // Afficher le CV existant s'il y en a un
+                const cvUpload = document.getElementById('cv-upload');
+                const existingCvInfo = document.querySelector('.cv-info');
+                if (existingCvInfo) existingCvInfo.remove();
+                
+                if (userData.cv_path) {
+                    const cvInfo = document.createElement('div');
+                    cvInfo.className = 'cv-info';
+                    cvInfo.innerHTML = `
+                        <div class="info-item" style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; border-left: 4px solid #28a745;">
+                            <strong>CV actuel :</strong>
+                            <a href="http://localhost:3000${userData.cv_path}" target="_blank" 
+                               style="margin-left: 10px; color: #007bff; text-decoration: none; font-weight: 500;">
+                                📄 Télécharger le CV
+                            </a>
+                        </div>
+                    `;
+                    cvUpload.parentNode.insertBefore(cvInfo, cvUpload.nextSibling);
+                }
+            } catch (error) {
+                console.error('Erreur chargement profil:', error);
+                alert('Erreur lors du chargement du profil');
+            }
+        }
+        
+        // Gérer la soumission du formulaire
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const user = getCurrentUser();
+            
+            // 1. Mettre à jour les infos de base
+            const profileData = {
+                email: document.getElementById('email').value,
+                password: 'unchanged',
+                full_name: document.getElementById('full_name').value,
+                role: user.role,
+                resume: document.getElementById('resume').value
+            };
+            
+            try {
+                // Mettre à jour le profil
+                const profileResponse = await fetch(`http://localhost:3000/User/${user.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(profileData)
+                });
+                
+                if (!profileResponse.ok) {
+                    throw new Error('Erreur lors de la mise à jour du profil');
+                }
+                
+                // 2. Upload du CV si un fichier est sélectionné
+                const cvFile = document.getElementById('cv-upload').files[0];
+                if (cvFile) {
+                    const cvFormData = new FormData();
+                    cvFormData.append('cv', cvFile);
+                    
+                    const cvResponse = await fetch(`http://localhost:3000/User/${user.id}/upload-cv`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: cvFormData
+                    });
+                    
+                    const cvResult = await cvResponse.json();
+                    if (!cvResponse.ok) {
+                        throw new Error(cvResult.error || 'Erreur lors de l\'upload du CV');
+                    }
+                    console.log('CV uploadé:', cvResult);
+                }
+                
+                // Mettre à jour le localStorage
+                const updatedUser = {
+                    ...user,
+                    name: profileData.full_name,
+                    email: profileData.email
+                };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                
+                // Afficher un message de succès plus élégant
+                const successMsg = document.createElement('div');
+                successMsg.innerHTML = `
+                    <div style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 5px; margin: 10px 0; border: 1px solid #c3e6cb;">
+                        ✓ Profil mis à jour avec succès !
+                    </div>
+                `;
+                document.querySelector('.profile-card').insertBefore(successMsg, document.querySelector('#profile-form'));
+                
+                setTimeout(() => successMsg.remove(), 3000);
+                loadUserProfile(); // Recharger le profil
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                
+                // Afficher un message d'erreur élégant
+                const errorMsg = document.createElement('div');
+                errorMsg.innerHTML = `
+                    <div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; margin: 10px 0; border: 1px solid #f5c6cb;">
+                        ⚠ Erreur: ${error.message}
+                    </div>
+                `;
+                document.querySelector('.profile-card').insertBefore(errorMsg, document.querySelector('#profile-form'));
+                
+                setTimeout(() => errorMsg.remove(), 5000);
+            }
+        });
+        
+        // Gérer l'upload de CV
+        document.getElementById('cv-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.type !== 'application/pdf') {
+                    alert('Seuls les fichiers PDF sont acceptés');
+                    e.target.value = '';
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    alert('Le fichier est trop volumineux (max 5MB)');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Ici vous pourriez ajouter l'upload vers un serveur de fichiers
+                console.log('CV sélectionné:', file.name);
+            }
+        });
     </script>
 </body>
 </html>

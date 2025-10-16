@@ -5,6 +5,9 @@ const setupSwagger = require('./swagger');
 const cors = require('cors');
 
 const bcrypt = require("bcrypt");
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const jwt = require("jsonwebtoken");
 const verifyJWT = require('../middleware/verifyJWT.js');
@@ -36,6 +39,37 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // important pour le POST
 
+// Configuration multer pour l'upload de CV
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = './uploads/cv';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'cv-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: function (req, file, cb) {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Seuls les fichiers PDF sont acceptés'));
+    }
+  }
+});
+
+// Servir les fichiers uploadés
+app.use('/uploads', express.static('uploads'));
+app.use(express.static('.'));
+
 // Connexion MySQL
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -62,6 +96,58 @@ connectWithRetry();
 
 // ✅ Ajout de Swagger
 setupSwagger(app);
+
+// Route pour l'upload de CV
+app.post('/User/:user_id/upload-cv', upload.single('cv'), (req, res) => {
+  const user_id = req.params.user_id;
+  
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: 'Aucun fichier uploadé' });
+  }
+  
+  const cvPath = `/uploads/cv/${req.file.filename}`;
+  
+  // Vérifier si la colonne cv_path existe, sinon l'ajouter
+  connection.query('SHOW COLUMNS FROM User LIKE "cv_path"', (err, result) => {
+    if (err) {
+      console.error('Erreur vérification colonne:', err);
+      return res.status(500).json({ success: false, error: 'Erreur base de données' });
+    }
+    
+    if (result.length === 0) {
+      // Ajouter la colonne cv_path
+      connection.query('ALTER TABLE User ADD COLUMN cv_path VARCHAR(500)', (err) => {
+        if (err) {
+          console.error('Erreur ajout colonne:', err);
+          return res.status(500).json({ success: false, error: 'Erreur ajout colonne' });
+        }
+        updateCvPath();
+      });
+    } else {
+      updateCvPath();
+    }
+    
+    function updateCvPath() {
+      // Mettre à jour le chemin du CV dans la base de données
+      connection.query(
+        'UPDATE User SET cv_path = ? WHERE user_id = ?',
+        [cvPath, user_id],
+        (err, result) => {
+          if (err) {
+            console.error('Erreur SQL:', err);
+            return res.status(500).json({ success: false, error: 'Erreur base de données' });
+          }
+          res.json({ 
+            success: true, 
+            message: 'CV uploadé avec succès',
+            cvPath: cvPath,
+            filename: req.file.filename
+          });
+        }
+      );
+    }
+  });
+});
 
 
 // --- User CRUD ---
@@ -387,18 +473,18 @@ app.post('/User/login', async (req, res) => {
         const accessToken = jwt.sign(
           { name: name },
           process.env.ACCESS_TOKEN_SECRET,
-          {expiresIn: '30s'}
+          {expiresIn: '6h'}
         );
         console.log('Token payload:', { name: name }); // Debug line
         const refreshToken = jwt.sign(
           { name: name },
           process.env.REFRESH_TOKEN_SECRET,
-          {expiresIn: '1d'}
+          {expiresIn: '7d'}
         );
 
         res.cookie("jwt", refreshToken, {
           httpOnly: true, 
-          maxAge: 24*60*60*1000,
+          maxAge: 7*24*60*60*1000,
           sameSite: "lax", // or "lax" for local, but "none" is needed for cross-origin
           secure: false     // set to true only if using HTTPS
           });
@@ -421,7 +507,7 @@ app.post('/User/refresh', (req, res) => {
     const accessToken = jwt.sign(
       { name: decoded.name },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '30s' }
+      { expiresIn: '6h' }
     );
     console.log('Token payload refresh:', { name: decoded.name }); // Debug line
     res.json({ accessToken });
@@ -486,9 +572,23 @@ app.post('/User/refresh', (req, res) => {
 app.put('/User/:user_id', (req, res) => {
   const user_id = req.params.user_id;
   const {email, password, full_name, role, resume} = req.body;
-  connection.query('UPDATE User SET email = ?, password=?, full_name=?, role=?, resume=? WHERE user_id = ?', [email, password, full_name, role, resume,user_id], (err, result) => {
-    if (err) throw err;
-    res.send('User updated successfully');
+  
+  // Si le mot de passe est 'unchanged', on ne le met pas à jour
+  let query, params;
+  if (password === 'unchanged') {
+    query = 'UPDATE User SET email = ?, full_name = ?, role = ?, resume = ? WHERE user_id = ?';
+    params = [email, full_name, role, resume, user_id];
+  } else {
+    query = 'UPDATE User SET email = ?, password = ?, full_name = ?, role = ?, resume = ? WHERE user_id = ?';
+    params = [email, password, full_name, role, resume, user_id];
+  }
+  
+  connection.query(query, params, (err, result) => {
+    if (err) {
+      console.error('Erreur SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json({ success: true, message: 'User updated successfully' });
   });
 });
 /**

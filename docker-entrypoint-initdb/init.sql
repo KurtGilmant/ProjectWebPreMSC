@@ -47,6 +47,7 @@ CREATE TABLE User (
     full_name VARCHAR(200) NOT NULL,
     role VARCHAR(50) DEFAULT 'candidate',
     resume TEXT,
+    cv_path VARCHAR(500),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

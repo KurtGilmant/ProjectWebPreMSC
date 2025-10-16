@@ -109,4 +109,50 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     console.log('Index page interactions loaded successfully!');
+    
+    // Gestion intelligente des liens Profil/Connexion
+    function setupProfileLinks() {
+        const isLoggedIn = localStorage.getItem('user') !== null;
+        const isAdminLoggedIn = localStorage.getItem('admin') !== null;
+        
+        // Lien Profil dans la navigation
+        const profilLink = document.getElementById('profil-link');
+        if (profilLink) {
+            if (isAdminLoggedIn) {
+                profilLink.href = 'pages/admin.html';
+                profilLink.querySelector('.text-wrapper-7').textContent = 'Admin';
+            } else if (isLoggedIn) {
+                profilLink.href = 'pages/profil.html';
+                profilLink.querySelector('.text-wrapper-7').textContent = 'Mon Profil';
+            } else {
+                profilLink.href = 'pages/connexion.html';
+                profilLink.querySelector('.text-wrapper-7').textContent = 'Profil';
+            }
+        }
+        
+        // Boutons Se Connecter
+        const profilLink2 = document.getElementById('profil-link-2');
+        const profilLink3 = document.getElementById('profil-link-3');
+        
+        [profilLink2, profilLink3].forEach(link => {
+            if (link) {
+                if (isAdminLoggedIn) {
+                    link.href = 'pages/admin.html';
+                    link.querySelector('.text-wrapper-18').textContent = 'Admin';
+                } else if (isLoggedIn) {
+                    link.href = 'pages/profil.html';
+                    link.querySelector('.text-wrapper-18').textContent = 'Mon Profil';
+                } else {
+                    link.href = 'pages/connexion.html';
+                    link.querySelector('.text-wrapper-18').textContent = 'Se Connecter';
+                }
+            }
+        });
+    }
+    
+    // Appeler la fonction au chargement
+    setupProfileLinks();
+    
+    // Mettre à jour les liens si l'état de connexion change
+    window.addEventListener('storage', setupProfileLinks);
 });

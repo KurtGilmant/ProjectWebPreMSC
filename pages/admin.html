@@ -64,5 +64,31 @@
         </main>
     </div>
     <script src="../js/admin-script.js"></script>
+    <script>
+        // Vérifier si l'utilisateur est admin
+        const adminData = localStorage.getItem('admin');
+        if (!adminData) {
+            alert('Accès refusé. Seuls les administrateurs peuvent accéder à cette page.');
+            window.location.href = '../index.html';
+        }
+        
+        // Fonction de déconnexion admin
+        function logoutAdmin() {
+            localStorage.removeItem('admin');
+            window.location.href = '../index.html';
+        }
+        
+        // Ajouter un bouton de déconnexion
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminActions = document.querySelector('.profile-actions');
+            if (adminActions) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.className = 'back-btn';
+                logoutBtn.textContent = 'Déconnexion Admin';
+                logoutBtn.onclick = logoutAdmin;
+                adminActions.appendChild(logoutBtn);
+            }
+        });
+    </script>
 </body>
 </html>

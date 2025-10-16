@@ -93,5 +93,11 @@ function getCurrentUser() {
 function logout() {
     localStorage.removeItem('user');
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('admin');
     window.location.href = '../index.html';
+}
+
+// Vérifier si l'utilisateur est admin
+function isAdmin() {
+    return localStorage.getItem('admin') !== null;
 }
