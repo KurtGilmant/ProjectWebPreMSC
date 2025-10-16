@@ -50,10 +50,18 @@ async function loadUserProfile() {
     }
 }
 
-// Fonction pour récupérer les offres depuis l'API
-async function fetchJobs() {
+// Fonction pour récupérer les offres depuis l'API avec filtres
+async function fetchJobs(filters = {}) {
     try {
-        const response = await fetch('http://localhost:3000/Offer/with-companies');
+        const params = new URLSearchParams();
+        Object.keys(filters).forEach(key => {
+            if (filters[key] !== '' && filters[key] !== null && filters[key] !== undefined) {
+                params.append(key, filters[key]);
+            }
+        });
+        
+        const url = `http://localhost:3000/Offer/with-companies${params.toString() ? '?' + params.toString() : ''}`;
+        const response = await fetch(url);
         const offers = await response.json();
         
         // Mapper les offres au format attendu
@@ -227,6 +235,43 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Erreur:', error);
             alert('Erreur lors de l\'envoi de la candidature');
         }
+    });
+    
+    // Gestion des filtres
+    document.getElementById('apply-filters').addEventListener('click', async function() {
+        const filters = {
+            search: document.getElementById('search-filter').value,
+            location: document.getElementById('location-filter').value,
+            contract_type: document.getElementById('contract-filter').value,
+            remote: document.getElementById('remote-filter').value,
+            min_salary: document.getElementById('min-salary').value,
+            max_salary: document.getElementById('max-salary').value
+        };
+        
+        // Afficher un message de chargement
+        const jobsGrid = document.querySelector('.jobs-grid');
+        jobsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Application des filtres...</p>';
+        
+        // Récupérer les offres filtrées
+        await fetchJobs(filters);
+        generateJobCards(jobs);
+    });
+    
+    document.getElementById('clear-filters').addEventListener('click', async function() {
+        // Vider tous les champs de filtre
+        document.getElementById('search-filter').value = '';
+        document.getElementById('location-filter').value = '';
+        document.getElementById('contract-filter').value = '';
+        document.getElementById('remote-filter').value = '';
+        document.getElementById('min-salary').value = '';
+        document.getElementById('max-salary').value = '';
+        
+        // Recharger toutes les offres
+        const jobsGrid = document.querySelector('.jobs-grid');
+        jobsGrid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Chargement des offres...</p>';
+        
+        await fetchJobs();
+        generateJobCards(jobs);
     });
     
     console.log('Jobly loaded successfully!');

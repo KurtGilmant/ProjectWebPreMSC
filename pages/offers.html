@@ -19,6 +19,51 @@
             <a href="../index.html"><button class="back-btn">← Retour à l'accueil</button></a>
         </div>
         
+        <!-- Section des filtres -->
+        <div class="filters-section">
+            <h3>Filtrer les offres</h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="search-filter">Recherche</label>
+                    <input type="text" id="search-filter" placeholder="Titre, entreprise, mot-clé...">
+                </div>
+                <div class="filter-group">
+                    <label for="location-filter">Localisation</label>
+                    <input type="text" id="location-filter" placeholder="Ville, région...">
+                </div>
+                <div class="filter-group">
+                    <label for="contract-filter">Type de contrat</label>
+                    <select id="contract-filter">
+                        <option value="">Tous</option>
+                        <option value="CDI">CDI</option>
+                        <option value="CDD">CDD</option>
+                        <option value="Stage">Stage</option>
+                        <option value="Freelance">Freelance</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="remote-filter">Télétravail</label>
+                    <select id="remote-filter">
+                        <option value="">Tous</option>
+                        <option value="true">Oui</option>
+                        <option value="false">Non</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="min-salary">Salaire min</label>
+                    <input type="number" id="min-salary" placeholder="25000">
+                </div>
+                <div class="filter-group">
+                    <label for="max-salary">Salaire max</label>
+                    <input type="number" id="max-salary" placeholder="60000">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button id="apply-filters" class="learn-more">Appliquer les filtres</button>
+                <button id="clear-filters" class="back-btn">Effacer</button>
+            </div>
+        </div>
+        
         <main class="jobs-grid">
 
         </main>

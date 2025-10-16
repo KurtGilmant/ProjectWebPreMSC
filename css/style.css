@@ -606,3 +606,83 @@ header h1 {
         justify-content: flex-end;
     }
 }
+/* Styles pour les filtres */
+.filters-section {
+    max-width: 1280px;
+    margin: 0 auto 2rem auto;
+    padding: 0 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--colors-border-border-default);
+    box-shadow: var(--material-design-shadows-1);
+    padding: 1.5rem;
+}
+
+.filters-section h3 {
+    font-family: "Inter", Helvetica;
+    font-weight: 600;
+    color: #fca207;
+    font-size: 20px;
+    margin-bottom: 1rem;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-family: "Inter", Helvetica;
+    font-weight: 500;
+    color: #000000;
+    font-size: var(--small-text-font-size);
+    margin-bottom: 0.5rem;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid var(--colors-border-border-default);
+    border-radius: 6px;
+    font-family: "Inter", Helvetica;
+    font-size: var(--small-text-font-size);
+    transition: border-color 0.3s ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #fca207;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.filter-actions button {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-actions {
+        justify-content: stretch;
+    }
+    
+    .filter-actions button {
+        flex: 1;
+    }
+}

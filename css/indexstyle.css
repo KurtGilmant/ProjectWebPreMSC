@@ -3,7 +3,7 @@
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    min-height: 4811px;
+    min-height: 3800px;
     position: relative;
     padding: 0 20px;
   }
@@ -17,7 +17,7 @@
   
   .page-d-accueil .text-wrapper {
     position: absolute;
-    top: 3857px;
+    top: 3100px;
     left: 50%;
     transform: translateX(-50%);
     width: 625px;
@@ -36,7 +36,7 @@
     align-items: flex-start;
     gap: var(--variable-collection-spacing-SM);
     position: absolute;
-    top: 3963px;
+    top: 3200px;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -177,7 +177,7 @@
     position: absolute;
     width: 100%;
     left: 0;
-    bottom: 0;
+    top: 3536px;
     height: 264px;
     background-color: #ffffff;
   }
@@ -374,7 +374,7 @@
   }
   
   .page-d-accueil .text-wrapper-9 {
-    top: 3013px;
+    top: 2600px;
     left: 50%;
     transform: translateX(-50%);
     position: absolute;
@@ -394,7 +394,7 @@
     align-items: center;
     gap: 31px;
     position: absolute;
-    top: 3582px;
+    top: 2700px;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -421,7 +421,7 @@
     width: 548.44px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--variable-collection-spacing-XS);
     position: relative;
     flex: 0 0 auto;
@@ -457,7 +457,7 @@
     width: 547.56px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--variable-collection-spacing-XS);
     position: relative;
     flex: 0 0 auto;
@@ -677,7 +677,7 @@
   
   .page-d-accueil .section {
     position: absolute;
-    top: 4311px;
+    top: 3500px;
     left: 0;
     width: 100vw;
     height: 236px;
@@ -957,7 +957,7 @@
     top: 2091px;
     left: calc(50.00% - 656px);
     width: 1269px;
-    height: 728px;
+    height: 400px;
   }
   
   .page-d-accueil .text-wrapper-23 {
@@ -975,12 +975,12 @@
   }
   
   .page-d-accueil .copy-wrapper {
-    top: 616px;
+    top: 120px;
     left: 0;
     display: flex;
     flex-direction: column;
     width: 405px;
-    height: 112px;
+    height: 200px;
     align-items: flex-start;
     gap: 24px;
     position: absolute;
@@ -997,6 +997,23 @@
     flex: 0 0 auto;
   }
   
+  .page-d-accueil .partner-logo {
+    width: 200px;
+    height: 120px;
+    object-fit: contain;
+    margin: 0 auto 10px;
+    display: block;
+  }
+
+  .page-d-accueil .engagement-image {
+    width: 180px;
+    height: 120px;
+    object-fit: cover;
+    margin: 0 auto 15px;
+    display: block;
+    border-radius: 8px;
+  }
+
   .page-d-accueil .text-wrapper-24 {
     position: relative;
     align-self: stretch;
@@ -1011,24 +1028,24 @@
   }
   
   .page-d-accueil .card-2 {
-    top: 616px;
+    top: 120px;
     left: 428px;
     display: flex;
     flex-direction: column;
     width: 405px;
-    height: 112px;
+    height: 200px;
     align-items: flex-start;
     gap: 24px;
     position: absolute;
   }
   
   .page-d-accueil .card-3 {
-    top: 600px;
+    top: 120px;
     left: 862px;
     display: flex;
     flex-direction: column;
     width: 405px;
-    height: 112px;
+    height: 200px;
     align-items: flex-start;
     gap: 24px;
     position: absolute;

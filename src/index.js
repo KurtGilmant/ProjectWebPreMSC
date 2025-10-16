@@ -1539,9 +1539,11 @@ app.get('/Offer', (req, res) => {
   });
 });
 
-// Route pour récupérer les offres avec les noms d'entreprises
+// Route pour récupérer les offres avec les noms d'entreprises et filtres
 app.get('/Offer/with-companies', (req, res) => {
-  const query = `
+  const { search, location, contract_type, remote, min_salary, max_salary } = req.query;
+  
+  let query = `
     SELECT 
       o.offer_id,
       o.title,
@@ -1559,7 +1561,42 @@ app.get('/Offer/with-companies', (req, res) => {
     WHERE o.status = 'open'
   `;
   
-  connection.query(query, (err, results) => {
+  const params = [];
+  
+  if (search) {
+    query += ` AND (o.title LIKE ? OR o.description LIKE ? OR c.name LIKE ?)`;
+    const searchTerm = `%${search}%`;
+    params.push(searchTerm, searchTerm, searchTerm);
+  }
+  
+  if (location) {
+    query += ` AND o.location LIKE ?`;
+    params.push(`%${location}%`);
+  }
+  
+  if (contract_type) {
+    query += ` AND o.contract_type = ?`;
+    params.push(contract_type);
+  }
+  
+  if (remote !== undefined) {
+    query += ` AND o.remote = ?`;
+    params.push(remote === 'true' ? 1 : 0);
+  }
+  
+  if (min_salary) {
+    query += ` AND o.salary >= ?`;
+    params.push(parseInt(min_salary));
+  }
+  
+  if (max_salary) {
+    query += ` AND o.salary <= ?`;
+    params.push(parseInt(max_salary));
+  }
+  
+  query += ` ORDER BY o.offer_id DESC`;
+  
+  connection.query(query, params, (err, results) => {
     if (err) {
       console.error('Erreur requête SQL:', err);
       return res.status(500).json({ error: 'Erreur base de données' });
