@@ -3,7 +3,7 @@
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    min-height: 3800px;
+    min-height: 4200px;
     position: relative;
     padding: 0 20px;
   }
@@ -17,7 +17,7 @@
   
   .page-d-accueil .text-wrapper {
     position: absolute;
-    top: 3100px;
+    top: 3200px;
     left: 50%;
     transform: translateX(-50%);
     width: 625px;
@@ -36,7 +36,7 @@
     align-items: flex-start;
     gap: var(--variable-collection-spacing-SM);
     position: absolute;
-    top: 3200px;
+    top: 3350px;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -177,7 +177,7 @@
     position: absolute;
     width: 100%;
     left: 0;
-    top: 3536px;
+    top: 4136px;
     height: 264px;
     background-color: #ffffff;
   }
@@ -374,7 +374,7 @@
   }
   
   .page-d-accueil .text-wrapper-9 {
-    top: 2600px;
+    top: 2450px;
     left: 50%;
     transform: translateX(-50%);
     position: absolute;
@@ -394,7 +394,7 @@
     align-items: center;
     gap: 31px;
     position: absolute;
-    top: 2700px;
+    top: 2600px;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -503,7 +503,7 @@
   
   .page-d-accueil .text-wrapper-13 {
     position: absolute;
-    top: 870px;
+    top: 780px;
     left: 50%;
     transform: translateX(-50%);
     width: 624px;
@@ -516,15 +516,24 @@
     text-align: center;
   }
   
+  .page-d-accueil .concept-logo {
+    position: absolute;
+    top: 1050px;
+    right: 150px;
+    width: 400px;
+    height: 300px;
+    object-fit: contain;
+  }
+
   .page-d-accueil .text {
     display: flex;
     flex-direction: column;
     width: 516px;
     align-items: flex-start;
-    gap: 48px;
+    gap: 40px;
     position: absolute;
-    top: 1060px;
-    left: 200px;
+    top: 900px;
+    left: 100px;
   }
   
   .page-d-accueil .text-2 {
@@ -596,7 +605,7 @@
     align-items: center;
     gap: 16px;
     position: absolute;
-    top: 1836px;
+    top: 1600px;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -677,7 +686,7 @@
   
   .page-d-accueil .section {
     position: absolute;
-    top: 3500px;
+    top: 3900px;
     left: 0;
     width: 100vw;
     height: 236px;
@@ -784,7 +793,7 @@
     align-items: center;
     gap: 24px;
     position: absolute;
-    top: 314px;
+    top: 250px;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -826,7 +835,7 @@
     height: 48px;
     padding: 20px 32px;
     position: absolute;
-    top: 639px;
+    top: 580px;
     right: 80px;
     background-color: #fca207;
     align-items: center;
@@ -877,7 +886,7 @@
     align-items: flex-start;
     gap: 10px;
     position: absolute;
-    top: 639px;
+    top: 580px;
     left: 50%;
     transform: translateX(-50%);
     box-shadow: var(--material-design-shadows-1);
@@ -954,7 +963,7 @@
   
   .page-d-accueil .group {
     position: absolute;
-    top: 2091px;
+    top: 1850px;
     left: calc(50.00% - 656px);
     width: 1269px;
     height: 400px;
