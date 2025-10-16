@@ -48,25 +48,23 @@
                 <form id="candidature-form">
                     <div class="form-group">
                         <label for="nom">Nom *</label>
-                        <input type="text" id="nom" name="nom" required>
+                        <input type="text" id="nom" name="nom" required readonly style="background-color: #f5f5f5;">
+                        <small style="color: #666;">Informations récupérées depuis votre profil</small>
                     </div>
                     <div class="form-group">
                         <label for="prenom">Prénom *</label>
-                        <input type="text" id="prenom" name="prenom" required>
+                        <input type="text" id="prenom" name="prenom" required readonly style="background-color: #f5f5f5;">
                     </div>
                     <div class="form-group">
                         <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" required readonly style="background-color: #f5f5f5;">
                     </div>
                     <div class="form-group">
-                        <label for="telephone">Téléphone *</label>
-                        <input type="tel" id="telephone" name="telephone" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message (optionnel)</label>
+                        <label for="message">Message de motivation (optionnel)</label>
                         <textarea id="message" name="message" rows="4" placeholder="Votre message de motivation..."></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">Envoyer</button>
+                    <p style="color: #666; font-size: 14px; margin: 10px 0;">📄 Votre CV sera automatiquement joint depuis votre profil</p>
+                    <button type="submit" class="submit-btn">Envoyer ma candidature</button>
                 </form>
             </div>
         </div>

@@ -1,54 +1,27 @@
-// Données des offres d'emploi (simulation base de données)
-let jobs = [
-    {
-        id: 1,
-        title: "Développeur Frontend React",
-        description: "Travail sur des interfaces modernes avec React.",
-        company: "Pixel Labs",
-        requirements: "3+ ans d'expérience en React, TypeScript, CSS",
-        location: "Paris, France (Hybride)",
-        salary: "45k - 55k €/an"
-    },
-    {
-        id: 2,
-        title: "Ingénieur Données Junior",
-        description: "Collecte et nettoyage des données pour l'équipe produit.",
-        company: "DataWave",
-        requirements: "Python, SQL, notions de Machine Learning",
-        location: "Lyon, France (Remote possible)",
-        salary: "38k - 45k €/an"
-    },
-    {
-        id: 3,
-        title: "Product Manager",
-        description: "Coordination des équipes et suivi de la feuille de route produit.",
-        company: "StartupFlow",
-        requirements: "2+ ans en product management, méthodologies agiles",
-        location: "Bordeaux, France",
-        salary: "50k - 60k €/an"
-    },
-    {
-        id: 4,
-        title: "Designer UI/UX",
-        description: "Concevoir des interfaces claires et accessibles.",
-        company: "CreativeCore",
-        requirements: "Figma, Sketch, portfolio requis",
-        location: "Toulouse, France",
-        salary: "40k - 50k €/an"
-    },
-    {
-        id: 5,
-        title: "DevOps / Cloud",
-        description: "Automatisation des déploiements et gestion du cloud.",
-        company: "Opsify",
-        requirements: "Docker, Kubernetes, AWS/Azure",
-        location: "Nantes, France (Full remote)",
-        salary: "55k - 65k €/an"
-    }
-];
-
-let nextId = 6;
+let jobs = [];
+let companies = [];
 let editingId = null;
+
+// Charger les entreprises depuis l'API
+async function loadCompanies() {
+    try {
+        const response = await fetch('http://localhost:3000/Company');
+        companies = await response.json();
+    } catch (error) {
+        console.error('Erreur lors du chargement des entreprises:', error);
+    }
+}
+
+// Charger les offres depuis l'API
+async function loadJobs() {
+    try {
+        const response = await fetch('http://localhost:3000/Offer/with-companies');
+        jobs = await response.json();
+        displayJobs();
+    } catch (error) {
+        console.error('Erreur lors du chargement des offres:', error);
+    }
+}
 
 // Afficher la liste des offres
 function displayJobs() {
@@ -61,12 +34,13 @@ function displayJobs() {
         jobElement.innerHTML = `
             <div class="admin-job-info">
                 <h3>${job.title}</h3>
-                <p><strong>${job.company}</strong> - ${job.location}</p>
+                <p><strong>${job.company_name || 'Entreprise inconnue'}</strong> - ${job.location}</p>
                 <p>${job.description}</p>
+                <p><strong>Salaire:</strong> ${job.salary}€</p>
             </div>
             <div class="admin-job-actions">
-                <button class="learn-more" onclick="editJob(${job.id})">Modifier</button>
-                <button class="back-btn" onclick="deleteJob(${job.id})">Supprimer</button>
+                <button class="learn-more" onclick="editJob(${job.offer_id})">Modifier</button>
+                <button class="back-btn" onclick="deleteJob(${job.offer_id})">Supprimer</button>
             </div>
         `;
         jobsList.appendChild(jobElement);
@@ -74,43 +48,80 @@ function displayJobs() {
 }
 
 // Ajouter une nouvelle offre
-function addJob(jobData) {
-    const newJob = {
-        id: nextId++,
-        ...jobData
-    };
-    jobs.push(newJob);
-    displayJobs();
+async function addJob(jobData) {
+    try {
+        const response = await fetch('http://localhost:3000/Offer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jobData)
+        });
+        
+        if (response.ok) {
+            await loadJobs();
+        } else {
+            alert('Erreur lors de l\'ajout de l\'offre');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'ajout de l\'offre');
+    }
 }
 
 // Modifier une offre existante
-function updateJob(id, jobData) {
-    const index = jobs.findIndex(job => job.id === id);
-    if (index !== -1) {
-        jobs[index] = { id, ...jobData };
-        displayJobs();
+async function updateJob(id, jobData) {
+    try {
+        const response = await fetch(`http://localhost:3000/Offer/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jobData)
+        });
+        
+        if (response.ok) {
+            await loadJobs();
+        } else {
+            alert('Erreur lors de la modification de l\'offre');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la modification de l\'offre');
     }
 }
 
 // Supprimer une offre
-function deleteJob(id) {
+async function deleteJob(id) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')) {
-        jobs = jobs.filter(job => job.id !== id);
-        displayJobs();
+        try {
+            const response = await fetch(`http://localhost:3000/Offer/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                await loadJobs();
+            } else {
+                alert('Erreur lors de la suppression de l\'offre');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression de l\'offre');
+        }
     }
 }
 
 // Préparer l'édition d'une offre
 function editJob(id) {
-    const job = jobs.find(job => job.id === id);
+    const job = jobs.find(job => job.offer_id === id);
     if (job) {
         editingId = id;
         document.getElementById('form-title').textContent = 'Modifier l\'offre';
-        document.getElementById('job-id').value = job.id;
+        document.getElementById('job-id').value = job.offer_id;
         document.getElementById('job-title').value = job.title;
-        document.getElementById('job-company').value = job.company;
+        document.getElementById('job-company').value = job.company_name || '';
         document.getElementById('job-description').value = job.description;
-        document.getElementById('job-requirements').value = job.requirements;
+        document.getElementById('job-requirements').value = job.requirements || '';
         document.getElementById('job-location').value = job.location;
         document.getElementById('job-salary').value = job.salary;
         document.querySelector('.submit-btn').textContent = 'Modifier l\'offre';
@@ -128,28 +139,73 @@ function cancelEdit() {
 }
 
 // Initialisation
-document.addEventListener('DOMContentLoaded', function() {
-    displayJobs();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadCompanies();
+    await loadJobs();
     
     // Gestion du formulaire
-    document.getElementById('job-form').addEventListener('submit', function(e) {
+    document.getElementById('job-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
+        const companyName = formData.get('company');
+        
+        // Trouver ou créer l'entreprise
+        let company = companies.find(c => c.name.toLowerCase() === companyName.toLowerCase());
+        let companyId;
+        
+        if (!company) {
+            // Créer une nouvelle entreprise
+            try {
+                const response = await fetch('http://localhost:3000/Company', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: companyName,
+                        website: '',
+                        location: formData.get('location'),
+                        description: `Entreprise ${companyName}`
+                    })
+                });
+                
+                if (response.ok) {
+                    await loadCompanies();
+                    company = companies.find(c => c.name.toLowerCase() === companyName.toLowerCase());
+                    companyId = company.company_id;
+                } else {
+                    alert('Erreur lors de la création de l\'entreprise');
+                    return;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la création de l\'entreprise');
+                return;
+            }
+        } else {
+            companyId = company.company_id;
+        }
+        
         const jobData = {
             title: formData.get('title'),
-            company: formData.get('company'),
             description: formData.get('description'),
-            requirements: formData.get('requirements'),
+            company_id: companyId,
             location: formData.get('location'),
-            salary: formData.get('salary')
+            contract_type: 'CDI',
+            salary: parseInt(formData.get('salary')) || 0,
+            category_id: 1,
+            status: 'open',
+            rythm: 'full-time',
+            remote: false,
+            language: 'French'
         };
         
         if (editingId) {
-            updateJob(editingId, jobData);
+            await updateJob(editingId, jobData);
             cancelEdit();
         } else {
-            addJob(jobData);
+            await addJob(jobData);
             this.reset();
         }
     });

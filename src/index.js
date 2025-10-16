@@ -1056,8 +1056,11 @@ app.get('/Company', (req, res) => {
 app.post('/Company', (req, res) => {
   const { name, website, location, description } = req.body;
   connection.query('INSERT INTO Company (name, website, location, description) VALUES (?, ?, ?, ?)', [name, website, location, description], (err, result) => {
-    if (err) return res.status(500).json({ error: 'Erreur base de données' });
-    res.send('Company added');
+    if (err) {
+      console.error('Erreur SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json({ success: true, message: 'Company added successfully', companyId: result.insertId });
   });
 });
 /**
@@ -1238,6 +1241,35 @@ app.get('/Offer', (req, res) => {
     res.json(results);
   });
 });
+
+// Route pour récupérer les offres avec les noms d'entreprises
+app.get('/Offer/with-companies', (req, res) => {
+  const query = `
+    SELECT 
+      o.offer_id,
+      o.title,
+      o.description,
+      o.location,
+      o.contract_type,
+      o.salary,
+      o.status,
+      o.rythm,
+      o.remote,
+      o.language,
+      c.name as company_name
+    FROM Offer o
+    LEFT JOIN Company c ON o.company_id = c.company_id
+    WHERE o.status = 'open'
+  `;
+  
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Erreur requête SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json(results);
+  });
+});
 /**
  * @swagger
  * /Offer:
@@ -1311,11 +1343,14 @@ app.get('/Offer', (req, res) => {
 app.post('/Offer', (req, res) => {
   const { title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language } = req.body;
   connection.query(
-    'INSERT INTO Offer (title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO Offer (title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language],
     (err, result) => {
-      if (err) return res.status(500).json({ error: 'Erreur base de données' });
-      res.send('Offer added');
+      if (err) {
+        console.error('Erreur SQL:', err);
+        return res.status(500).json({ error: 'Erreur base de données' });
+      }
+      res.json({ success: true, message: 'Offer added successfully', offerId: result.insertId });
     }
   );
 });
@@ -1454,7 +1489,38 @@ app.put('/Offer/:offer_id', (req, res) => {
   const { title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language } = req.body;
   connection.query('UPDATE Offer SET title = ?, description = ?, company_id = ?, location = ?, contract_type = ?, salary = ?, category_id = ?, status = ?, rythm = ?, remote = ?, language = ? WHERE offer_id = ?', [title, description, company_id, location, contract_type, salary, category_id, status, rythm, remote, language, req.params.offer_id], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erreur base de données' });
-    res.send('Offer updated');
+    res.json({ success: true, message: 'Offer updated successfully' });
+  });
+});
+/**
+ * @swagger
+ * /Offer/{offer_id}:
+ *   delete:
+ *     summary: Delete a offer by its ID
+ *     tags:
+ *       - Offer
+ *     parameters:
+ *       - in: path
+ *         name: offer_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Offer's id
+ *     responses:
+ *       200:
+ *         description: Offer deleted successfully
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: Offer deleted successfully
+ *       404:
+ *         description: offer not found
+ */
+app.delete('/Offer/:offer_id', (req, res) => {
+  connection.query('DELETE FROM Offer WHERE offer_id = ?', [req.params.offer_id], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Erreur base de données' });
+    res.json({ success: true, message: 'Offer deleted successfully' });
   });
 });
 /**
