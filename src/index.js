@@ -134,74 +134,7 @@ app.put('/User/:user_id/company/:company_id', (req, res) => {
   );
 });
 
-// Route de debug pour associer automatiquement kurt.gilmant@epitech.eu
-app.get('/debug/fix-kurt', (req, res) => {
-  // Trouver l'utilisateur kurt.gilmant@epitech.eu
-  connection.query('SELECT user_id FROM User WHERE email = ?', ['kurt.gilmant@epitech.eu'], (err, users) => {
-    if (err || users.length === 0) {
-      return res.json({ error: 'Utilisateur non trouvé' });
-    }
-    
-    const userId = users[0].user_id;
-    
-    // Trouver la première entreprise disponible
-    connection.query('SELECT company_id FROM Company LIMIT 1', (err, companies) => {
-      if (err || companies.length === 0) {
-        return res.json({ error: 'Aucune entreprise trouvée' });
-      }
-      
-      const companyId = companies[0].company_id;
-      
-      // Associer l'utilisateur à l'entreprise
-      connection.query(
-        'UPDATE User SET company_id = ? WHERE user_id = ?',
-        [companyId, userId],
-        (err, result) => {
-          if (err) {
-            return res.json({ error: 'Erreur mise à jour' });
-          }
-          res.json({ 
-            success: true, 
-            message: `Utilisateur ${userId} associé à l'entreprise ${companyId}` 
-          });
-        }
-      );
-    });
-  });
-});
 
-// Route pour lister les tables existantes
-app.get('/debug/tables', (req, res) => {
-  connection.query('SHOW TABLES', (err, results) => {
-    if (err) {
-      console.error('Erreur:', err);
-      return res.status(500).json({ error: err.message });
-    }
-    
-    const tables = results.map(row => Object.values(row)[0]);
-    
-    // Pour chaque table, récupérer sa structure
-    const tableDetails = {};
-    let completed = 0;
-    
-    if (tables.length === 0) {
-      return res.json({ tables: [], details: {} });
-    }
-    
-    tables.forEach(tableName => {
-      connection.query(`DESCRIBE ${tableName}`, (err, columns) => {
-        if (!err) {
-          tableDetails[tableName] = columns;
-        }
-        completed++;
-        
-        if (completed === tables.length) {
-          res.json({ tables, details: tableDetails });
-        }
-      });
-    });
-  });
-});
 
 // Route pour l'upload de CV
 app.post('/User/:user_id/upload-cv', upload.single('cv'), (req, res) => {
