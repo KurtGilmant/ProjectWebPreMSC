@@ -32,6 +32,16 @@
         .status-pending { background-color: #fff3cd; color: #856404; }
         .status-accepted { background-color: #d4edda; color: #155724; }
         .status-rejected { background-color: #f8d7da; color: #721c24; }
+        .candidature-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .message {
+            font-style: italic;
+            color: #666;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -47,34 +57,9 @@
         
         <main class="profile-content">
             <div class="profile-card">
-                <h2>Historique des candidatures</h2>
-                <div class="candidatures-list">
-                    <div class="candidature-item">
-                        <div class="candidature-info">
-                            <h3>Développeur Full Stack</h3>
-                            <p class="company">TechCorp</p>
-                            <p class="date">Candidature envoyée le 15/12/2024</p>
-                        </div>
-                        <div class="candidature-status status-pending">En attente</div>
-                    </div>
-                    
-                    <div class="candidature-item">
-                        <div class="candidature-info">
-                            <h3>Développeur Frontend</h3>
-                            <p class="company">WebAgency</p>
-                            <p class="date">Candidature envoyée le 12/12/2024</p>
-                        </div>
-                        <div class="candidature-status status-accepted">Acceptée</div>
-                    </div>
-                    
-                    <div class="candidature-item">
-                        <div class="candidature-info">
-                            <h3>Développeur Backend</h3>
-                            <p class="company">StartupTech</p>
-                            <p class="date">Candidature envoyée le 10/12/2024</p>
-                        </div>
-                        <div class="candidature-status status-rejected">Refusée</div>
-                    </div>
+                <h2 id="page-title">Historique des candidatures</h2>
+                <div id="candidatures-list" class="candidatures-list">
+                    <p style="text-align: center; color: #666;">Chargement...</p>
                 </div>
             </div>
             
@@ -82,6 +67,108 @@
                 <a href="offers.html"><button class="learn-more">Voir les offres</button></a>
             </div>
         </main>
+        
+        <script src="../js/auth.js"></script>
+        <script>
+            // Vérifier si l'utilisateur est connecté
+            if (!isLoggedIn()) {
+                window.location.href = 'connexion.html';
+            } else {
+                loadCandidatures();
+            }
+            
+            async function loadCandidatures() {
+                const user = getCurrentUser();
+                const candidaturesList = document.getElementById('candidatures-list');
+                
+                try {
+                    if (user.role === 'employeur') {
+                        // Pour les entreprises : afficher les candidatures reçues
+                        document.getElementById('page-title').textContent = 'Candidatures reçues';
+                        document.querySelector('.subtitle').textContent = 'Gérez les candidatures pour vos offres';
+                        
+                        const response = await fetch(`http://localhost:3000/Application/company/${user.id}`);
+                        const applications = await response.json();
+                        
+                        if (applications.length === 0) {
+                            candidaturesList.innerHTML = '<p style="text-align: center; color: #666;">Aucune candidature reçue</p>';
+                            return;
+                        }
+                        
+                        candidaturesList.innerHTML = applications.map(app => `
+                            <div class="candidature-item">
+                                <div class="candidature-info">
+                                    <h3>${app.offer_title}</h3>
+                                    <p class="company"><strong>Candidat:</strong> ${app.applicant_name} (${app.applicant_email})</p>
+                                    <p class="date">Candidature reçue le ${new Date(app.created_at).toLocaleDateString()}</p>
+                                    <p class="message"><strong>Message:</strong> ${app.message || 'Aucun message'}</p>
+                                </div>
+                                <div class="candidature-actions">
+                                    <div class="candidature-status status-${app.status}">${getStatusText(app.status)}</div>
+                                    <div style="margin-top: 10px;">
+                                        <button onclick="updateApplicationStatus(${app.application_id}, 'accepted')" class="learn-more" style="margin-right: 5px; padding: 5px 10px; font-size: 12px;">Accepter</button>
+                                        <button onclick="updateApplicationStatus(${app.application_id}, 'rejected')" class="back-btn" style="padding: 5px 10px; font-size: 12px;">Refuser</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                    } else {
+                        // Pour les candidats : afficher leurs candidatures envoyées
+                        const response = await fetch(`http://localhost:3000/Application/user/${user.id}`);
+                        const applications = await response.json();
+                        
+                        if (applications.length === 0) {
+                            candidaturesList.innerHTML = '<p style="text-align: center; color: #666;">Aucune candidature envoyée</p>';
+                            return;
+                        }
+                        
+                        candidaturesList.innerHTML = applications.map(app => `
+                            <div class="candidature-item">
+                                <div class="candidature-info">
+                                    <h3>${app.offer_title}</h3>
+                                    <p class="company">${app.company_name}</p>
+                                    <p class="date">Candidature envoyée le ${new Date(app.created_at).toLocaleDateString()}</p>
+                                </div>
+                                <div class="candidature-status status-${app.status}">${getStatusText(app.status)}</div>
+                            </div>
+                        `).join('');
+                    }
+                    
+                } catch (error) {
+                    console.error('Erreur chargement candidatures:', error);
+                    candidaturesList.innerHTML = '<p style="text-align: center; color: #dc3545;">Erreur lors du chargement des candidatures</p>';
+                }
+            }
+            
+            function getStatusText(status) {
+                switch(status) {
+                    case 'pending': return 'En attente';
+                    case 'accepted': return 'Acceptée';
+                    case 'rejected': return 'Refusée';
+                    default: return status;
+                }
+            }
+            
+            async function updateApplicationStatus(applicationId, newStatus) {
+                try {
+                    const response = await fetch(`http://localhost:3000/Application/${applicationId}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    if (response.ok) {
+                        loadCandidatures(); // Recharger la liste
+                    } else {
+                        alert('Erreur lors de la mise à jour du statut');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la mise à jour du statut');
+                }
+            }
+        </script>
     </div>
 </body>
 </html>

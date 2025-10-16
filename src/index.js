@@ -104,6 +104,24 @@ setTimeout(() => {
       });
     }
   });
+  
+  // Ajouter created_at à Application si elle n'existe pas
+  connection.query('SHOW COLUMNS FROM Application LIKE "created_at"', (err, result) => {
+    if (err) {
+      console.error('Erreur vérification colonne created_at:', err);
+      return;
+    }
+    
+    if (result.length === 0) {
+      connection.query('ALTER TABLE Application ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP', (err) => {
+        if (err) {
+          console.error('Erreur ajout colonne created_at:', err);
+        } else {
+          console.log('✅ Colonne created_at ajoutée à la table Application');
+        }
+      });
+    }
+  });
 }, 2000);
 
 // Setup API
@@ -1868,6 +1886,73 @@ app.delete('/Offer/:offer_id', (req, res) => {
 });
 
 
+// Routes pour les candidatures par utilisateur et entreprise
+app.get('/Application/user/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  
+  const query = `
+    SELECT 
+      a.*,
+      o.title as offer_title,
+      c.name as company_name
+    FROM Application a
+    LEFT JOIN Offer o ON a.offer_id = o.offer_id
+    LEFT JOIN Company c ON o.company_id = c.company_id
+    WHERE a.user_id = ?
+    ORDER BY a.created_at DESC
+  `;
+  
+  connection.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Erreur SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json(results);
+  });
+});
+
+app.get('/Application/company/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  
+  const query = `
+    SELECT 
+      a.*,
+      o.title as offer_title,
+      c.name as company_name
+    FROM Application a
+    LEFT JOIN Offer o ON a.offer_id = o.offer_id
+    LEFT JOIN Company c ON o.company_id = c.company_id
+    LEFT JOIN User u ON u.company_id = c.company_id
+    WHERE u.user_id = ?
+    ORDER BY a.created_at DESC
+  `;
+  
+  connection.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Erreur SQL:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    res.json(results);
+  });
+});
+
+app.put('/Application/:application_id/status', (req, res) => {
+  const applicationId = req.params.application_id;
+  const { status } = req.body;
+  
+  connection.query(
+    'UPDATE Application SET status = ? WHERE application_id = ?',
+    [status, applicationId],
+    (err, result) => {
+      if (err) {
+        console.error('Erreur SQL:', err);
+        return res.status(500).json({ error: 'Erreur base de données' });
+      }
+      res.json({ success: true, message: 'Statut mis à jour' });
+    }
+  );
+});
+
 // --- Application CRUD ---
 /**
  * @swagger
@@ -1966,9 +2051,32 @@ app.get('/Application', (req, res) => {
  */
 app.post('/Application', (req, res) => {
   const { offer_id, user_id, applicant_name, applicant_email, resume, message, status } = req.body;
-  connection.query('INSERT INTO Application (offer_id, user_id, applicant_name, applicant_email, resume, message, status) VALUES (?, ?, ?, ?, ?, ?, ?)', [offer_id, user_id, applicant_name, applicant_email, resume, message, status], (err, result) => {
-    if (err) return res.status(500).json({ error: 'Erreur base de données' });
-    res.send('Application added');
+  
+  // Vérifier que created_at existe, sinon l'ajouter
+  connection.query('SHOW COLUMNS FROM Application LIKE "created_at"', (err, columns) => {
+    if (err) {
+      console.error('Erreur vérification colonne:', err);
+      return res.status(500).json({ error: 'Erreur base de données' });
+    }
+    
+    let query, params;
+    if (columns.length > 0) {
+      // La colonne created_at existe
+      query = 'INSERT INTO Application (offer_id, user_id, applicant_name, applicant_email, resume, message, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())';
+      params = [offer_id, user_id, applicant_name, applicant_email, resume, message, status];
+    } else {
+      // La colonne created_at n'existe pas
+      query = 'INSERT INTO Application (offer_id, user_id, applicant_name, applicant_email, resume, message, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      params = [offer_id, user_id, applicant_name, applicant_email, resume, message, status];
+    }
+    
+    connection.query(query, params, (err, result) => {
+      if (err) {
+        console.error('Erreur SQL:', err);
+        return res.status(500).json({ error: 'Erreur base de données' });
+      }
+      res.json({ success: true, message: 'Application added successfully', applicationId: result.insertId });
+    });
   });
 });
 /**

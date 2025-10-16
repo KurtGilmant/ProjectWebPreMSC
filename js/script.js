@@ -2,6 +2,12 @@
 let jobs = [];
 let currentUser = null;
 
+// Fonction pour récupérer l'utilisateur actuel
+function getCurrentUser() {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+}
+
 // Fonction pour récupérer les informations du profil connecté
 async function loadUserProfile() {
     const token = localStorage.getItem('accessToken');
@@ -189,12 +195,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         const jobTitle = document.getElementById('detail-title').textContent;
         const jobId = jobs.find(j => j.title === jobTitle)?.id;
         
+        const user = getCurrentUser();
         const applicationData = {
             offer_id: jobId,
-            user_id: currentUser.user_id,
-            applicant_name: currentUser.full_name,
-            applicant_email: currentUser.email,
-            resume: currentUser.resume || 'CV disponible dans le profil utilisateur',
+            user_id: user.id,
+            applicant_name: user.name,
+            applicant_email: user.email,
+            resume: currentUser?.resume || 'CV disponible dans le profil utilisateur',
             message: formData.get('message') || 'Candidature via le site Jobly',
             status: 'pending'
         };
