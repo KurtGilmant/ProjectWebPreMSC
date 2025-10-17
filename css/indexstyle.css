@@ -391,7 +391,7 @@
   .page-d-accueil .cards-2 {
     display: flex;
     width: min(1080px, 90vw);
-    align-items: center;
+    align-items: flex-start;
     gap: 31px;
     position: absolute;
     top: 2600px;
@@ -1015,8 +1015,8 @@
   }
 
   .page-d-accueil .engagement-image {
-    width: 180px;
-    height: 120px;
+    width: 540px;
+    height: 360px;
     object-fit: cover;
     margin: 0 auto 15px;
     display: block;
