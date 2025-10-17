@@ -98,6 +98,15 @@ function showJobDetails(jobId) {
     document.getElementById('detail-location').textContent = `Localisation: ${job.location}`;
     document.getElementById('detail-salary').textContent = `Salaire: ${job.salary}`;
     
+    // Vérifier si l'utilisateur est une entreprise et masquer le bouton Postuler
+    const user = getCurrentUser();
+    const applyBtn = document.getElementById('apply-btn');
+    if (user && user.role === 'employeur') {
+        applyBtn.style.display = 'none';
+    } else {
+        applyBtn.style.display = 'block';
+    }
+    
     // Masquer la grille et afficher les détails
     document.querySelector('.jobs-grid').classList.add('hidden');
     document.getElementById('job-details').classList.remove('hidden');
@@ -160,6 +169,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Générer les cartes d'offres filtrées
     generateJobCards(filteredJobs);
+    
+    // Mettre à jour le compteur d'offres
+    document.getElementById('total-offers').textContent = jobs.length;
     
     // Event listeners pour les boutons "En savoir plus"
     document.querySelector('.jobs-grid').addEventListener('click', function(e) {
@@ -255,6 +267,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Récupérer les offres filtrées
         await fetchJobs(filters);
         generateJobCards(jobs);
+        
+        // Mettre à jour le compteur
+        document.getElementById('total-offers').textContent = jobs.length;
     });
     
     document.getElementById('clear-filters').addEventListener('click', async function() {
@@ -272,6 +287,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         await fetchJobs();
         generateJobCards(jobs);
+        
+        // Mettre à jour le compteur
+        document.getElementById('total-offers').textContent = jobs.length;
     });
     
     console.log('Jobly loaded successfully!');

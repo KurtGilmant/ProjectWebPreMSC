@@ -13,6 +13,20 @@
         <header>
             <h1>Jobly</h1>
             <p class="subtitle">Découvrez nos offres d'emploi</p>
+            <div class="stats-banner">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-offers">-</span>
+                    <span class="stat-label">Offres disponibles</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">150+</span>
+                    <span class="stat-label">Entreprises partenaires</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4536</span>
+                    <span class="stat-label">Candidats placés</span>
+                </div>
+            </div>
         </header>
         
         <div class="profile-actions">
@@ -64,9 +78,15 @@
             </div>
         </div>
         
-        <main class="jobs-grid">
+        <div class="content-section">
+            <div class="section-header">
+                <h2>Toutes nos offres d'emploi</h2>
+                <p>Trouvez l'opportunité qui vous correspond parmi notre sélection d'offres</p>
+            </div>
+            <main class="jobs-grid">
 
-        </main>
+            </main>
+        </div>
         
         <!-- Section détails de l'offre (cachée par défaut) -->
         <div id="job-details" class="job-details hidden">
@@ -114,6 +134,14 @@
             </div>
         </div>
     </div>
+    <div class="bottom-cta">
+        <div class="cta-content">
+            <h3>Vous ne trouvez pas votre bonheur ?</h3>
+            <p>Créez une alerte emploi et recevez les nouvelles offres directement par email</p>
+            <button class="cta-button">Créer une alerte</button>
+        </div>
+    </div>
     <script src="../js/script.js"></script>
+    <div style="height: 40px;"></div>
 </body>
 </html>
