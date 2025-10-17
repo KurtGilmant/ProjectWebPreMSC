@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobly - Candidatures reçues</title>
+    <link rel="stylesheet" href="../css/globals.css">
+    <link rel="stylesheet" href="../css/styleguide.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="company-title">Candidatures reçues</h1>
+            <p class="subtitle">Gérez les candidatures pour vos offres</p>
+        </header>
+        
+        <div class="profile-actions">
+            <a href="entreprise-dashboard.html"><button class="back-btn">← Retour au dashboard</button></a>
+        </div>
+        
+        <main class="admin-content">
+            <div class="profile-card">
+                <h2>Toutes les candidatures</h2>
+                <div id="applications-list" class="jobs-admin-list"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let applications = [];
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('Vous devez être connecté');
+                window.location.href = 'connexion.html';
+                return;
+            }
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const userName = payload.name;
+                
+                const response = await fetch(`http://localhost:3000/User/find-user/${encodeURIComponent(userName)}`);
+                if (response.ok) {
+                    currentUser = await response.json();
+                    
+                    if (currentUser.role !== 'employeur') {
+                        alert('Accès réservé aux entreprises');
+                        window.location.href = '../index.html';
+                        return;
+                    }
+                    
+                    document.getElementById('company-title').textContent = `Candidatures - ${currentUser.company_name || 'Entreprise'}`;
+                    await loadApplications();
+                } else {
+                    throw new Error('Utilisateur non trouvé');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur d\'authentification');
+                window.location.href = 'connexion.html';
+            }
+        });
+        
+        async function loadApplications() {
+            try {
+                const response = await fetch(`http://localhost:3000/Application/company/${currentUser.user_id}`);
+                applications = await response.json();
+                displayApplications();
+            } catch (error) {
+                console.error('Erreur lors du chargement des candidatures:', error);
+            }
+        }
+        
+        function displayApplications() {
+            const container = document.getElementById('applications-list');
+            container.innerHTML = '';
+            
+            if (applications.length === 0) {
+                container.innerHTML = '<p style="color: #666;">Aucune candidature reçue</p>';
+                return;
+            }
+            
+            applications.forEach(app => {
+                const appElement = document.createElement('div');
+                appElement.className = 'admin-job-item';
+                appElement.innerHTML = `
+                    <div class="admin-job-info">
+                        <h3>${app.applicant_name}</h3>
+                        <p><strong>Offre:</strong> ${app.offer_title}</p>
+                        <p><strong>Email:</strong> ${app.applicant_email}</p>
+                        <p><strong>Message:</strong> ${app.message || 'Aucun message'}</p>
+                        <p><strong>Statut:</strong> <span class="status-${app.status}">${app.status}</span></p>
+                        <p><small>Candidature du ${new Date(app.created_at).toLocaleDateString()}</small></p>
+                    </div>
+                    <div class="admin-job-actions">
+                        ${app.candidate_cv ? `<a href="http://localhost:3000${app.candidate_cv}" target="_blank" class="learn-more">📄 Voir CV</a>` : ''}
+                        <button class="learn-more" onclick="updateStatus(${app.application_id}, 'accepted')">Accepter</button>
+                        <button class="back-btn" onclick="updateStatus(${app.application_id}, 'rejected')">Refuser</button>
+                    </div>
+                `;
+                container.appendChild(appElement);
+            });
+        }
+        
+        async function updateStatus(applicationId, status) {
+            try {
+                const response = await fetch(`http://localhost:3000/Application/${applicationId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                
+                if (response.ok) {
+                    alert(`Candidature ${status === 'accepted' ? 'acceptée' : 'refusée'}`);
+                    await loadApplications();
+                } else {
+                    alert('Erreur lors de la mise à jour');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la mise à jour');
+            }
+        }
+    </script>
+</body>
+</html>

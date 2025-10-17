@@ -248,7 +248,8 @@ app.post('/User/:user_id/upload-cv', upload.single('cv'), (req, res) => {
 
 // --- Company Registration Requests ---
 app.post('/Company/request', (req, res) => {
-  const { company_name, contact_name, email, phone, description } = req.body;
+  const { company_name, contact_name, email, phone, description, password } = req.body;
+  console.log('Mot de passe reçu dans la demande:', password);
   
   // Créer la table si elle n'existe pas
   connection.query(`
@@ -259,6 +260,7 @@ app.post('/Company/request', (req, res) => {
       email VARCHAR(255) NOT NULL,
       phone VARCHAR(20),
       description TEXT,
+      password VARCHAR(255),
       status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -268,18 +270,38 @@ app.post('/Company/request', (req, res) => {
       return res.status(500).json({ error: 'Erreur base de données' });
     }
     
-    // Insérer la demande
-    connection.query(
-      'INSERT INTO Company_Registration_Request (company_name, contact_name, email, phone, description) VALUES (?, ?, ?, ?, ?)',
-      [company_name, contact_name, email, phone, description],
-      (err, result) => {
-        if (err) {
-          console.error('Erreur SQL:', err);
-          return res.status(500).json({ error: 'Erreur base de données' });
-        }
-        res.json({ success: true, message: 'Demande d\'inscription envoyée avec succès' });
+    // Vérifier si la colonne password existe, sinon l'ajouter
+    connection.query('SHOW COLUMNS FROM Company_Registration_Request LIKE "password"', (err, columns) => {
+      if (err) {
+        console.error('Erreur vérification colonne:', err);
       }
-    );
+      
+      if (columns.length === 0) {
+        connection.query('ALTER TABLE Company_Registration_Request ADD COLUMN password VARCHAR(255)', (err) => {
+          if (err) {
+            console.error('Erreur ajout colonne password:', err);
+          }
+          insertRequest();
+        });
+      } else {
+        insertRequest();
+      }
+    });
+    
+    function insertRequest() {
+      // Insérer la demande
+      connection.query(
+        'INSERT INTO Company_Registration_Request (company_name, contact_name, email, phone, description, password) VALUES (?, ?, ?, ?, ?, ?)',
+        [company_name, contact_name, email, phone, description, password],
+        (err, result) => {
+          if (err) {
+            console.error('Erreur SQL:', err);
+            return res.status(500).json({ error: 'Erreur base de données' });
+          }
+          res.json({ success: true, message: 'Demande d\'inscription envoyée avec succès' });
+        }
+      );
+    }
   });
 });
 
@@ -305,7 +327,9 @@ app.put('/Company/requests/:id/approve', async (req, res) => {
       }
       
       const request = results[0];
-      const hashedPassword = await bcrypt.hash('temp123', 10);
+      const passwordToUse = request.password || 'temp123';
+      console.log('Mot de passe récupéré de la demande:', passwordToUse);
+      const hashedPassword = await bcrypt.hash(passwordToUse, 10);
       
       // Créer l'entreprise
       connection.query(

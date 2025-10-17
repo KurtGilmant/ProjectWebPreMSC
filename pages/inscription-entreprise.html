@@ -36,6 +36,11 @@
                         <input type="email" id="email" name="email" required>
                     </div>
                     <div class="form-group">
+                        <label for="password">Mot de passe *</label>
+                        <input type="password" id="password" name="password" required minlength="6">
+                        <small style="color: #666;">Minimum 6 caractères</small>
+                    </div>
+                    <div class="form-group">
                         <label for="phone">Téléphone</label>
                         <input type="tel" id="phone" name="phone">
                     </div>
@@ -72,7 +77,8 @@
                 contact_name: formData.get('contact_name'),
                 email: formData.get('email'),
                 phone: formData.get('phone'),
-                description: formData.get('description')
+                description: formData.get('description'),
+                password: formData.get('password')
             };
             
             try {
