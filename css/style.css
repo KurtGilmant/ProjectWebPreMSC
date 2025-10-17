@@ -823,10 +823,10 @@ body {
 
 .shape {
     position: absolute;
-    background: linear-gradient(135deg, rgba(252, 162, 7, 0.15), rgba(230, 146, 10, 0.1));
+    background: linear-gradient(135deg, rgba(252, 162, 7, 0.1), rgba(230, 146, 10, 0.06));
     border-radius: 8px;
     animation: float 20s ease-in-out infinite;
-    border: 1px solid rgba(252, 162, 7, 0.2);
+    border: 1px solid rgba(252, 162, 7, 0.1);
 }
 
 .shape-1 {
