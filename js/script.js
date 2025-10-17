@@ -70,6 +70,7 @@ async function fetchJobs(filters = {}) {
             title: offer.title,
             description: offer.description,
             company: offer.company_name || 'Entreprise inconnue',
+            company_id: offer.company_id,
             requirements: `${offer.contract_type || 'Contrat non spécifié'} - ${offer.rythm || 'Temps plein'}`,
             location: offer.location,
             salary: offer.salary ? `${offer.salary}€/an` : 'À négocier',
@@ -112,9 +113,32 @@ function showJobDetails(jobId) {
     document.getElementById('job-details').classList.remove('hidden');
 }
 
+// Fonction pour afficher les informations d'une entreprise
+async function showCompanyInfo(companyId) {
+    try {
+        const response = await fetch(`http://localhost:3000/Company/${companyId}`);
+        if (response.ok) {
+            const company = await response.json();
+            
+            document.getElementById('company-name').textContent = company.name;
+            document.getElementById('company-location').textContent = `Localisation: ${company.location || 'Non spécifiée'}`;
+            document.getElementById('company-description').textContent = company.description || 'Aucune description disponible';
+            document.getElementById('company-website').innerHTML = company.website ? 
+                `Site web: <a href="${company.website}" target="_blank">${company.website}</a>` : 
+                'Site web: Non spécifié';
+            
+            document.querySelector('.jobs-grid').classList.add('hidden');
+            document.getElementById('company-info').classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des informations de l\'entreprise:', error);
+    }
+}
+
 // Fonction pour retourner à la liste
 function showJobsList() {
     document.getElementById('job-details').classList.add('hidden');
+    document.getElementById('company-info').classList.add('hidden');
     document.querySelector('.jobs-grid').classList.remove('hidden');
 }
 
@@ -133,7 +157,7 @@ function generateJobCards(jobsToShow = jobs) {
         jobCard.className = 'job-card';
         jobCard.innerHTML = `
             <h2 class="job-title">${job.title}</h2>
-            <p class="job-company">${job.company}</p>
+            <p class="job-company" style="cursor: pointer; color: #fca207; text-decoration: underline;" data-company-id="${job.company_id}">${job.company}</p>
             <p class="job-description">${job.description}</p>
             <button class="learn-more" data-job-id="${job.id}">En savoir plus</button>
         `;
@@ -173,16 +197,41 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Mettre à jour le compteur d'offres
     document.getElementById('total-offers').textContent = jobs.length;
     
-    // Event listeners pour les boutons "En savoir plus"
-    document.querySelector('.jobs-grid').addEventListener('click', function(e) {
+    // Event listeners pour les boutons "En savoir plus" et noms d'entreprises
+    document.querySelector('.jobs-grid').addEventListener('click', async function(e) {
         if (e.target.classList.contains('learn-more')) {
             const jobId = parseInt(e.target.getAttribute('data-job-id'));
             showJobDetails(jobId);
+        } else if (e.target.classList.contains('job-company')) {
+            const companyId = e.target.getAttribute('data-company-id');
+            if (companyId) {
+                try {
+                    const response = await fetch(`http://localhost:3000/Company/${companyId}`);
+                    if (response.ok) {
+                        const company = await response.json();
+                        console.log('Données entreprise:', company);
+                        if (company.website && company.website.trim() !== '') {
+                            const url = company.website.startsWith('http') ? company.website : `https://${company.website}`;
+                            console.log('URL à ouvrir:', url);
+                            window.open(url, '_blank');
+                        } else {
+                            alert('Aucun site web disponible pour cette entreprise');
+                        }
+                    } else {
+                        console.error('Erreur API:', response.status);
+                        alert('Impossible de récupérer les informations de l\'entreprise');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Impossible d\'accéder au site de l\'entreprise');
+                }
+            }
         }
     });
     
-    // Event listener pour le bouton retour
+    // Event listeners pour les boutons retour
     document.getElementById('back-btn').addEventListener('click', showJobsList);
+    document.getElementById('back-from-company').addEventListener('click', showJobsList);
     
     // Event listener pour le bouton Postuler
     document.getElementById('apply-btn').addEventListener('click', async function() {

@@ -1579,6 +1579,7 @@ app.get('/Offer/with-companies', (req, res) => {
       o.rythm,
       o.remote,
       o.language,
+      o.company_id,
       c.name as company_name
     FROM Offer o
     LEFT JOIN Company c ON o.company_id = c.company_id
