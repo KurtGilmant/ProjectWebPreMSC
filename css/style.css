@@ -779,3 +779,26 @@ header h1 {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(252, 162, 7, 0.3);
 }
+
+.signup-link {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.signup-link p {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+}
+
+.signup-link a {
+    color: #fca207;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
