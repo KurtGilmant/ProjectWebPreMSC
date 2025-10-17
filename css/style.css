@@ -1,8 +1,10 @@
 /* Styles cohérents avec le design Jobly */
 .container {
-    background-color: #ffffff;
+    background-color: transparent;
     min-height: 100vh;
     font-family: "Inter", Helvetica;
+    position: relative;
+    z-index: 1;
 }
 
 header {
@@ -801,4 +803,99 @@ header h1 {
 
 .signup-link a:hover {
     text-decoration: underline;
+}
+
+/* Éléments géométriques décoratifs */
+body {
+    background-color: #ffffff;
+}
+
+.geometric-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.shape {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(252, 162, 7, 0.15), rgba(230, 146, 10, 0.1));
+    border-radius: 8px;
+    animation: float 20s ease-in-out infinite;
+    border: 1px solid rgba(252, 162, 7, 0.2);
+}
+
+.shape-1 {
+    width: 150px;
+    height: 150px;
+    top: 10%;
+    left: 5%;
+    animation-delay: 0s;
+    transform: rotate(15deg);
+}
+
+.shape-2 {
+    width: 100px;
+    height: 250px;
+    top: 30%;
+    right: 8%;
+    animation-delay: -5s;
+    transform: rotate(-20deg);
+}
+
+.shape-3 {
+    width: 200px;
+    height: 120px;
+    bottom: 25%;
+    left: 10%;
+    animation-delay: -10s;
+    transform: rotate(45deg);
+}
+
+.shape-4 {
+    width: 130px;
+    height: 130px;
+    top: 60%;
+    right: 15%;
+    animation-delay: -15s;
+    transform: rotate(-10deg);
+    border-radius: 50%;
+}
+
+.shape-5 {
+    width: 220px;
+    height: 80px;
+    bottom: 10%;
+    right: 5%;
+    animation-delay: -8s;
+    transform: rotate(30deg);
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(var(--rotation, 0deg));
+    }
+    50% {
+        transform: translateY(-20px) rotate(calc(var(--rotation, 0deg) + 5deg));
+    }
+}
+
+.shape-1 { --rotation: 15deg; }
+.shape-2 { --rotation: -20deg; }
+.shape-3 { --rotation: 45deg; }
+.shape-4 { --rotation: -10deg; }
+.shape-5 { --rotation: 30deg; }
+
+@media (max-width: 768px) {
+    .shape {
+        opacity: 0.3;
+    }
+    
+    .shape-2, .shape-4 {
+        display: none;
+    }
 }
