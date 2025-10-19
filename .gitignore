@@ -40,3 +40,6 @@ coverage/
 # --- MySQL dumps (optionnel) ---
 *.sql
 *.sql.gz
+
+# --- Fichier de test ---
+testLinkAPI/
