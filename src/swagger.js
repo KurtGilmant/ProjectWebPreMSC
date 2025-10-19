@@ -16,7 +16,7 @@ const options = {
       },
     ],
   },
-  apis: ['./src/index.js'], // <- L'endroit où Swagger va lire les commentaires
+  apis: ['./src/routes/*.js'], // <- L'endroit où Swagger va lire les commentaires
 };
 
 const swaggerSpec = swaggerJSDoc(options);

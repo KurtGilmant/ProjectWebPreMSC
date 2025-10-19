@@ -41,7 +41,7 @@ function displayJobs() {
                 <p><strong>Salaire:</strong> ${job.salary}€</p>
             </div>
             <div class="admin-job-actions">
-                <button class="learn-more" onclick="editJob(${job.offer_id})">Modifier</button>
+                <button class="learn-more" onclick="editJob(${job.offer_id}); console.log('Button clicked for job:', ${job.offer_id});">Modifier</button>
                 <button class="back-btn" onclick="deleteJob(${job.offer_id})">Supprimer</button>
             </div>
         `;
@@ -115,29 +115,63 @@ async function deleteJob(id) {
 
 // Préparer l'édition d'une offre
 function editJob(id) {
+    console.log('editJob called with id:', id);
     const job = jobs.find(job => job.offer_id === id);
+    console.log('Found job:', job);
+    
     if (job) {
         editingId = id;
-        document.getElementById('form-title').textContent = 'Modifier l\'offre';
-        document.getElementById('job-id').value = job.offer_id;
-        document.getElementById('job-title').value = job.title;
-        document.getElementById('job-company').value = job.company_name || '';
-        document.getElementById('job-description').value = job.description;
-        document.getElementById('job-requirements').value = job.requirements || '';
-        document.getElementById('job-location').value = job.location;
-        document.getElementById('job-salary').value = job.salary;
-        document.querySelector('.submit-btn').textContent = 'Modifier l\'offre';
-        document.getElementById('cancel-btn').style.display = 'inline-block';
+        const formTitle = document.getElementById('form-title');
+        const jobTitle = document.querySelector('input[name="title"]');
+        const jobCompany = document.querySelector('input[name="company"]');
+        const jobDescription = document.querySelector('textarea[name="description"]');
+        const jobLocation = document.querySelector('input[name="location"]');
+        const jobSalary = document.querySelector('input[name="salary"]');
+        const submitBtn = document.querySelector('.submit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        
+        console.log('Form elements found:', {
+            formTitle: !!formTitle,
+            jobTitle: !!jobTitle,
+            jobCompany: !!jobCompany,
+            jobDescription: !!jobDescription,
+            jobLocation: !!jobLocation,
+            jobSalary: !!jobSalary,
+            submitBtn: !!submitBtn,
+            cancelBtn: !!cancelBtn
+        });
+        
+        if (formTitle) formTitle.textContent = 'Modifier l\'offre';
+        if (jobTitle) jobTitle.value = job.title;
+        if (jobCompany) jobCompany.value = job.company_name || '';
+        if (jobDescription) jobDescription.value = job.description;
+        if (jobLocation) jobLocation.value = job.location;
+        if (jobSalary) jobSalary.value = job.salary;
+        if (submitBtn) submitBtn.textContent = 'Modifier l\'offre';
+        if (cancelBtn) cancelBtn.style.display = 'inline-block';
+        
+        // Scroll to form
+        const jobForm = document.getElementById('job-form');
+        if (jobForm) {
+            jobForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    } else {
+        console.log('Job not found for id:', id);
     }
 }
 
 // Annuler l'édition
 function cancelEdit() {
     editingId = null;
-    document.getElementById('form-title').textContent = 'Ajouter une offre';
-    document.getElementById('job-form').reset();
-    document.querySelector('.submit-btn').textContent = 'Ajouter l\'offre';
-    document.getElementById('cancel-btn').style.display = 'none';
+    const formTitle = document.getElementById('form-title');
+    const jobForm = document.getElementById('job-form');
+    const submitBtn = document.querySelector('.submit-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    
+    if (formTitle) formTitle.textContent = 'Ajouter une offre';
+    if (jobForm) jobForm.reset();
+    if (submitBtn) submitBtn.textContent = 'Ajouter l\'offre';
+    if (cancelBtn) cancelBtn.style.display = 'none';
 }
 
 // Charger les demandes d'inscription
