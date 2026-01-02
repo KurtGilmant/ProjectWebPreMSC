@@ -43,3 +43,9 @@ coverage/
 
 # --- Fichier de test ---
 testLinkAPI/
+
+# --- Uploads (CV et fichiers temporaires) ---
+uploads/cv/*.pdf
+uploads/temp/*
+!uploads/cv/.gitkeep
+!uploads/temp/.gitkeep

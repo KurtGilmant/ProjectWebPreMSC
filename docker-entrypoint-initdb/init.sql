@@ -137,3 +137,20 @@ INSERT INTO User_Skills (user_id, skill_id) VALUES
 (1, 3), -- Alexis : SQL
 (2, 2), -- Marie : Python
 (2, 4); -- Marie : Docker
+
+-- Table pour stocker les analyses de CV
+CREATE TABLE CV_Analysis (
+    analysis_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    cv_hash VARCHAR(64) NOT NULL UNIQUE,
+    score_total INT NOT NULL,
+    format_structure INT NOT NULL,
+    contenu_textuel INT NOT NULL,
+    lisibilite INT NOT NULL,
+    optimisation_mots_cles INT NOT NULL,
+    points_forts JSON,
+    points_amelioration JSON,
+    recommandations JSON,
+    analyzed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
+);

@@ -102,6 +102,7 @@ const categoryRoutes = require('./routes/categoryRoutes')(connection);
 const userSkillRoutes = require('./routes/userSkillRoutes')(connection);
 const soughtSkillRoutes = require('./routes/soughtSkillRoutes')(connection);
 const adminRoutes = require('./routes/adminRoutes')(connection);
+const cvAnalyzerRoutes = require('./routes/cvAnalyzerRoutes')(connection);
 
 // Use routes
 app.use('/User', userRoutes);
@@ -113,6 +114,7 @@ app.use('/Job_Category', categoryRoutes);
 app.use('/User_Skills', userSkillRoutes);
 app.use('/Sought_Skills', soughtSkillRoutes);
 app.use('/Admin', adminRoutes);
+app.use('/CV_Analyzer', cvAnalyzerRoutes);
 
 app.listen(PORT, () => {
   console.log(`✅ Serveur démarré sur le port ${PORT}`);
